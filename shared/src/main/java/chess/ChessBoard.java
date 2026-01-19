@@ -39,6 +39,30 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                if (i > 2 && i < 7) {
+                    squares[i - 1][j - 1] = null;
+                }
+                else {
+                    if (i == 2 || i == 7) {
+                        squares[i - 1][j - 1] = new ChessPiece((i == 2) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+                    }
+                    else {
+                        if (j == 1 || j == 8) {
+                            squares[i - 1][j - 1] = new ChessPiece((i == 1) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
+                        } else if (j == 2 || j == 7) {
+                            squares[i - 1][j - 1] = new ChessPiece((i == 1) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
+                        } else if (j == 3 || j == 6) {
+                            squares[i - 1][j - 1] = new ChessPiece((i == 1) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
+                        } else if (j == 4) {
+                            squares[i - 1][j - 1] = new ChessPiece((i == 1) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
+                        } else {
+                            squares[i - 1][j - 1] = new ChessPiece((i == 1) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
