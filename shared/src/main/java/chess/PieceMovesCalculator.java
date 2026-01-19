@@ -1,7 +1,8 @@
 package chess;
 
+import chess.calculators.BishopMoveCalculator;
+
 import java.util.Collection;
-import java.util.List;
 
 public class PieceMovesCalculator {
     private final ChessBoard board;
@@ -13,6 +14,11 @@ public class PieceMovesCalculator {
     }
 
     public Collection<ChessMove> calculateMoves() {
-        return List.of();
+        ChessPiece piece = board.squares[position.getRow() - 1][position.getColumn() - 1];
+        if (piece.getPieceType() == ChessPiece.PieceType.BISHOP) {
+            BishopMoveCalculator bishopMoveCalculator = new BishopMoveCalculator(board, position);
+            return bishopMoveCalculator.calculateMoves();
+        }
+        return null;
     }
 }
