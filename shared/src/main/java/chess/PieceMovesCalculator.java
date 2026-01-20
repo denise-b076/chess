@@ -9,7 +9,7 @@ public class PieceMovesCalculator {
     }
 
     public static Collection<ChessMove> calculateMoves(ChessBoard board, ChessPosition position) {
-        ChessPiece piece = board.squares[position.getRow() - 1][position.getColumn() - 1];
+        ChessPiece piece = board.getPiece(position);
         if (piece.getPieceType() == ChessPiece.PieceType.BISHOP) {
             return BishopMoveCalculator.calculateMoves(board, position);
         }
@@ -21,6 +21,9 @@ public class PieceMovesCalculator {
         }
         if (piece.getPieceType() == ChessPiece.PieceType.KING) {
             return KingMoveCalculator.calculateMoves(board, position);
+        }
+        if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
+            return KnightMoveCalculator.calculateMoves(board, position);
         }
         return null;
     }
