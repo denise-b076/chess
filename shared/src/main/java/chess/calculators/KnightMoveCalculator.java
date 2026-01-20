@@ -1,9 +1,13 @@
-package chess;
+package chess.calculators;
+
+import chess.ChessBoard;
+import chess.ChessMove;
+import chess.ChessPosition;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static chess.PieceMovesCalculator.calculateMove;
+import static chess.calculators.PieceMovesCalculator.calculateMove;
 
 public class KnightMoveCalculator {
 

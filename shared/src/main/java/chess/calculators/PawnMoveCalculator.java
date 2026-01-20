@@ -1,9 +1,11 @@
-package chess;
+package chess.calculators;
+
+import chess.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static chess.PieceMovesCalculator.calculateMove;
+import static chess.calculators.PieceMovesCalculator.calculateMove;
 
 public class PawnMoveCalculator {
 
@@ -58,7 +60,7 @@ public class PawnMoveCalculator {
         int currCol = startPosition.getColumn();
         ChessPosition endPosition = new ChessPosition(currRow + 2, currCol);
         boolean[] result = calculateMove(startPosition, endPosition, board);
-        if (result[0] && result[2] && startPosition.getRow() == 2 && board.squares[currRow][currCol - 1] == null) {
+        if (result[0] && result[2] && startPosition.getRow() == 2 && board.getPiece(new ChessPosition(currRow + 1, currCol)) == null) {
             possibleMoves.add(new ChessMove(startPosition, endPosition, null));
         }
     }
@@ -98,7 +100,7 @@ public class PawnMoveCalculator {
         int currCol = startPosition.getColumn();
         ChessPosition endPosition = new ChessPosition(currRow - 2, currCol);
         boolean[] result = calculateMove(startPosition, endPosition, board);
-        if (result[0] && result[2] && startPosition.getRow() == 7 && board.squares[currRow - 2][currCol - 1] == null) {
+        if (result[0] && result[2] && startPosition.getRow() == 7 && board.getPiece(new ChessPosition(currRow - 1, currCol)) == null) {
             possibleMoves.add(new ChessMove(startPosition, endPosition, null));
         }
     }
