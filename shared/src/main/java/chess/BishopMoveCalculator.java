@@ -3,6 +3,8 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static chess.PieceMovesCalculator.calculateMove;
+
 public class BishopMoveCalculator {
 
     public BishopMoveCalculator() {
@@ -19,33 +21,13 @@ public class BishopMoveCalculator {
         return possibleMoves;
     }
 
-    private boolean[] calculateMove(ChessPosition endPosition, ChessBoard board, ChessPosition startPosition) {
-        boolean[] answers = new boolean[2];
-        for (int i = 0; i < 2; i++) {
-            answers[i] = true;
-        }
-        if (endPosition.getRow() > 8 || endPosition.getRow() < 1 || endPosition.getColumn() > 8 || endPosition.getColumn() < 1) {
-            answers[0] = false;
-            answers[1] = false;
-            return answers;
-        }
-        ChessPiece startPiece = board.squares[startPosition.getRow() - 1][startPosition.getColumn() - 1];
-        ChessPiece endPiece = board.squares[endPosition.getRow() - 1][endPosition.getColumn() - 1];
-        if (endPiece != null) {
-            answers[1] = false;
-            answers[0] = endPiece.getTeamColor() != startPiece.getTeamColor();
-            return answers;
-        }
-        return answers;
-    }
-
     private void upAndLeft(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
         boolean edgeNotHit = true;
         int currRow = startPosition.getRow();
         int currCol = startPosition.getColumn();
         while (edgeNotHit) {
             ChessPosition endPosition = new ChessPosition(currRow + 1, currCol - 1);
-            boolean[] result = calculateMove(endPosition, board, startPosition);
+            boolean[] result = calculateMove(startPosition, endPosition, board);
             if (result[0]) {
                 possibleMoves.add(new ChessMove(startPosition, endPosition, null));
             }
@@ -61,7 +43,7 @@ public class BishopMoveCalculator {
         int currCol = startPosition.getColumn();
         while (edgeNotHit) {
             ChessPosition endPosition = new ChessPosition(currRow + 1, currCol + 1);
-            boolean[] result = calculateMove(endPosition, board, startPosition);
+            boolean[] result = calculateMove(startPosition, endPosition, board);
             if (result[0]) {
                 possibleMoves.add(new ChessMove(startPosition, endPosition, null));
             }
@@ -77,7 +59,7 @@ public class BishopMoveCalculator {
         int currCol = startPosition.getColumn();
         while (edgeNotHit) {
             ChessPosition endPosition = new ChessPosition(currRow - 1, currCol - 1);
-            boolean[] result = calculateMove(endPosition, board, startPosition);
+            boolean[] result = calculateMove(startPosition, endPosition, board);
             if (result[0]) {
                 possibleMoves.add(new ChessMove(startPosition, endPosition, null));
             }
@@ -93,7 +75,7 @@ public class BishopMoveCalculator {
         int currCol = startPosition.getColumn();
         while (edgeNotHit) {
             ChessPosition endPosition = new ChessPosition(currRow - 1, currCol + 1);
-            boolean[] result = calculateMove(endPosition, board, startPosition);
+            boolean[] result = calculateMove(startPosition, endPosition, board);
             if (result[0]) {
                 possibleMoves.add(new ChessMove(startPosition, endPosition, null));
             }
