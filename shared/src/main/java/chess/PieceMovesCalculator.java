@@ -30,7 +30,7 @@ public class PieceMovesCalculator {
         }
     }
 
-    //the return booleans for answers are isGenerallyPossible, edgeNotHit, and endPosIsNull
+    //the return booleans for answers are isGenerallyPossible, edgeOrPieceNotHit, and endPosHasNoPiece
     public static boolean[] calculateMove(ChessPosition startPosition, ChessPosition endPosition, ChessBoard board) {
         boolean[] answers = new boolean[3];
         for (int i = 0; i < 3; i++) {
