@@ -63,7 +63,7 @@ public class ChessPiece {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || this.getClass() != o.getClass()) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         if (o == this) {
@@ -71,7 +71,7 @@ public class ChessPiece {
         }
 
         ChessPiece p = (ChessPiece) o;
-        return(this.getPieceType() == p.getPieceType() && this.getTeamColor() == p.getTeamColor());
+        return Objects.equals(getPieceType(), p.getPieceType()) && Objects.equals(getTeamColor(), p.getTeamColor());
     }
 
     @Override

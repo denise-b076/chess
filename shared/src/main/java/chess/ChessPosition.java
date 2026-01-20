@@ -41,7 +41,7 @@ public class ChessPosition {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || this.getClass() != o.getClass()) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         if (o == this) {
@@ -49,7 +49,7 @@ public class ChessPosition {
         }
 
         ChessPosition p = (ChessPosition) o;
-        return (this.getRow() == p.getRow() && this.getColumn() == p.getColumn());
+        return Objects.equals(getRow(),p.getRow()) && Objects.equals(getColumn(),p.getColumn());
     }
 
     @Override
