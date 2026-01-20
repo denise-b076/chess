@@ -25,12 +25,15 @@ public class PieceMovesCalculator {
         if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
             return KnightMoveCalculator.calculateMoves(board, position);
         }
-        return null;
+        else {
+            return PawnMoveCalculator.calculateMoves(board, position);
+        }
     }
 
+    //the return booleans for answers are isGenerallyPossible, edgeNotHit, and endPosIsNull
     public static boolean[] calculateMove(ChessPosition startPosition, ChessPosition endPosition, ChessBoard board) {
-        boolean[] answers = new boolean[2];
-        for (int i = 0; i < 2; i++) {
+        boolean[] answers = new boolean[3];
+        for (int i = 0; i < 3; i++) {
             answers[i] = true;
         }
         if (endPosition.getRow() > 8 || endPosition.getRow() < 1 || endPosition.getColumn() > 8 || endPosition.getColumn() < 1) {
@@ -41,10 +44,12 @@ public class PieceMovesCalculator {
         ChessPiece startPiece = board.squares[startPosition.getRow() - 1][startPosition.getColumn() - 1];
         ChessPiece endPiece = board.squares[endPosition.getRow() - 1][endPosition.getColumn() - 1];
         if (endPiece != null) {
-            answers[1] = false;
             answers[0] = endPiece.getTeamColor() != startPiece.getTeamColor();
+            answers[1] = false;
+            answers[2] = false;
             return answers;
         }
         return answers;
     }
 }
+
