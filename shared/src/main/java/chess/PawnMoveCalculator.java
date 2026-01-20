@@ -14,7 +14,6 @@ public class PawnMoveCalculator {
     public static Collection<ChessMove> calculateMoves(ChessBoard board, ChessPosition position) {
         PawnMoveCalculator calculator = new PawnMoveCalculator();
         Collection<ChessMove> possibleMoves = new ArrayList<>();
-//        ChessPiece pawn = board.squares[position.getRow() - 1][position.getColumn() - 1];
         ChessPiece pawn = board.getPiece(position);
         if (pawn.getTeamColor() == ChessGame.TeamColor.WHITE) {
             calculator.up(possibleMoves, board, position);

@@ -41,8 +41,8 @@ public class PieceMovesCalculator {
             answers[1] = false;
             return answers;
         }
-        ChessPiece startPiece = board.squares[startPosition.getRow() - 1][startPosition.getColumn() - 1];
-        ChessPiece endPiece = board.squares[endPosition.getRow() - 1][endPosition.getColumn() - 1];
+        ChessPiece startPiece = board.getPiece(startPosition);
+        ChessPiece endPiece = board.getPiece(endPosition);
         if (endPiece != null) {
             answers[0] = endPiece.getTeamColor() != startPiece.getTeamColor();
             answers[1] = false;
