@@ -7,8 +7,6 @@ import chess.ChessPosition;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static chess.calculators.PieceMovesCalculator.calculateMove;
-
 public class BishopMoveCalculator {
 
     public BishopMoveCalculator() {
@@ -26,66 +24,18 @@ public class BishopMoveCalculator {
     }
 
     private void upAndLeft(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
-        boolean edgeNotHit = true;
-        int currRow = startPosition.getRow();
-        int currCol = startPosition.getColumn();
-        while (edgeNotHit) {
-            ChessPosition endPosition = new ChessPosition(currRow + 1, currCol - 1);
-            boolean[] result = calculateMove(startPosition, endPosition, board);
-            if (result[0]) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-            }
-            edgeNotHit = result[1];
-            currRow += 1;
-            currCol -= 1;
-        }
+        PieceMovesCalculator.upAndLeftContinuous(possibleMoves, board, startPosition);
     }
 
     private void upAndRight(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
-        boolean edgeNotHit = true;
-        int currRow = startPosition.getRow();
-        int currCol = startPosition.getColumn();
-        while (edgeNotHit) {
-            ChessPosition endPosition = new ChessPosition(currRow + 1, currCol + 1);
-            boolean[] result = calculateMove(startPosition, endPosition, board);
-            if (result[0]) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-            }
-            edgeNotHit = result[1];
-            currRow += 1;
-            currCol += 1;
-        }
+        PieceMovesCalculator.upAndRightContinuous(possibleMoves, board, startPosition);
     }
 
     private void downAndLeft(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
-        boolean edgeNotHit = true;
-        int currRow = startPosition.getRow();
-        int currCol = startPosition.getColumn();
-        while (edgeNotHit) {
-            ChessPosition endPosition = new ChessPosition(currRow - 1, currCol - 1);
-            boolean[] result = calculateMove(startPosition, endPosition, board);
-            if (result[0]) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-            }
-            edgeNotHit = result[1];
-            currRow -= 1;
-            currCol -= 1;
-        }
+        PieceMovesCalculator.downAndLeftContinuous(possibleMoves, board, startPosition);
     }
 
     private void downAndRight(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
-        boolean edgeNotHit = true;
-        int currRow = startPosition.getRow();
-        int currCol = startPosition.getColumn();
-        while (edgeNotHit) {
-            ChessPosition endPosition = new ChessPosition(currRow - 1, currCol + 1);
-            boolean[] result = calculateMove(startPosition, endPosition, board);
-            if (result[0]) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-            }
-            edgeNotHit = result[1];
-            currRow -= 1;
-            currCol += 1;
-        }
+        PieceMovesCalculator.downAndRightContinuous(possibleMoves, board, startPosition);
     }
 }

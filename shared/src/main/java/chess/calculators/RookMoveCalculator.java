@@ -7,8 +7,6 @@ import chess.ChessPosition;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static chess.calculators.PieceMovesCalculator.calculateMove;
-
 public class RookMoveCalculator {
 
     public RookMoveCalculator() {
@@ -26,62 +24,18 @@ public class RookMoveCalculator {
     }
 
     private void up(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
-        boolean edgeNotHit = true;
-        int currRow = startPosition.getRow();
-        int currCol = startPosition.getColumn();
-        while (edgeNotHit) {
-            ChessPosition endPosition = new ChessPosition(currRow + 1, currCol);
-            boolean[] result = calculateMove(startPosition, endPosition, board);
-            if (result[0]) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-            }
-            edgeNotHit = result[1];
-            currRow += 1;
-        }
+        PieceMovesCalculator.upContinuous(possibleMoves, board, startPosition);
     }
 
     private void down(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
-        boolean edgeNotHit = true;
-        int currRow = startPosition.getRow();
-        int currCol = startPosition.getColumn();
-        while (edgeNotHit) {
-            ChessPosition endPosition = new ChessPosition(currRow - 1, currCol);
-            boolean[] result = calculateMove(startPosition, endPosition, board);
-            if (result[0]) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-            }
-            edgeNotHit = result[1];
-            currRow -= 1;
-        }
+        PieceMovesCalculator.downContinuous(possibleMoves, board, startPosition);
     }
 
     private void left (Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
-        boolean edgeNotHit = true;
-        int currRow = startPosition.getRow();
-        int currCol = startPosition.getColumn();
-        while (edgeNotHit) {
-            ChessPosition endPosition = new ChessPosition(currRow, currCol - 1);
-            boolean[] result = calculateMove(startPosition, endPosition, board);
-            if (result[0]) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-            }
-            edgeNotHit = result[1];
-            currCol -= 1;
-        }
+        PieceMovesCalculator.leftContinuous(possibleMoves, board, startPosition);
     }
 
     private void right (Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
-        boolean edgeNotHit = true;
-        int currRow = startPosition.getRow();
-        int currCol = startPosition.getColumn();
-        while (edgeNotHit) {
-            ChessPosition endPosition = new ChessPosition(currRow, currCol + 1);
-            boolean[] result = calculateMove(startPosition, endPosition, board);
-            if (result[0]) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-            }
-            edgeNotHit = result[1];
-            currCol += 1;
-        }
+        PieceMovesCalculator.rightContinuous(possibleMoves, board, startPosition);
     }
 }

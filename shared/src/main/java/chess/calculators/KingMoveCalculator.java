@@ -18,18 +18,18 @@ public class KingMoveCalculator {
     public static Collection<ChessMove> calculateMoves(ChessBoard board, ChessPosition position) {
         KingMoveCalculator calculator = new KingMoveCalculator();
         Collection<ChessMove> possibleMoves = new ArrayList<>();
-        calculator.up(possibleMoves, board, position);
-        calculator.down(possibleMoves, board, position);
-        calculator.left(possibleMoves, board, position);
-        calculator.right(possibleMoves, board, position);
-        calculator.upAndLeft(possibleMoves, board, position);
-        calculator.upAndRight(possibleMoves, board, position);
-        calculator.downAndLeft(possibleMoves, board, position);
-        calculator.downAndRight(possibleMoves, board, position);
+        calculator.upOne(possibleMoves, board, position);
+        calculator.downOne(possibleMoves, board, position);
+        calculator.leftOne(possibleMoves, board, position);
+        calculator.rightOne(possibleMoves, board, position);
+        calculator.upAndLeftOne(possibleMoves, board, position);
+        calculator.upAndRightOne(possibleMoves, board, position);
+        calculator.downAndLeftOne(possibleMoves, board, position);
+        calculator.downAndRightOne(possibleMoves, board, position);
         return possibleMoves;
     }
 
-    private void up(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
+    private void upOne(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
         int currRow = startPosition.getRow();
         int currCol = startPosition.getColumn();
         ChessPosition endPosition = new ChessPosition(currRow + 1, currCol);
@@ -39,7 +39,7 @@ public class KingMoveCalculator {
         }
     }
 
-    private void down(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
+    private void downOne(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
         int currRow = startPosition.getRow();
         int currCol = startPosition.getColumn();
         ChessPosition endPosition = new ChessPosition(currRow - 1, currCol);
@@ -49,7 +49,7 @@ public class KingMoveCalculator {
         }
     }
 
-    private void left (Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
+    private void leftOne(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
         int currRow = startPosition.getRow();
         int currCol = startPosition.getColumn();
         ChessPosition endPosition = new ChessPosition(currRow, currCol - 1);
@@ -59,7 +59,7 @@ public class KingMoveCalculator {
         }
     }
 
-    private void right (Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
+    private void rightOne(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
         int currRow = startPosition.getRow();
         int currCol = startPosition.getColumn();
         ChessPosition endPosition = new ChessPosition(currRow, currCol + 1);
@@ -69,7 +69,7 @@ public class KingMoveCalculator {
         }
     }
 
-    private void upAndLeft(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
+    private void upAndLeftOne(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
         int currRow = startPosition.getRow();
         int currCol = startPosition.getColumn();
         ChessPosition endPosition = new ChessPosition(currRow + 1, currCol - 1);
@@ -79,7 +79,7 @@ public class KingMoveCalculator {
         }
     }
 
-    private void upAndRight(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
+    private void upAndRightOne(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
         int currRow = startPosition.getRow();
         int currCol = startPosition.getColumn();
         ChessPosition endPosition = new ChessPosition(currRow + 1, currCol + 1);
@@ -89,7 +89,7 @@ public class KingMoveCalculator {
         }
     }
 
-    private void downAndLeft(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
+    private void downAndLeftOne(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
         int currRow = startPosition.getRow();
         int currCol = startPosition.getColumn();
         ChessPosition endPosition = new ChessPosition(currRow - 1, currCol - 1);
@@ -99,7 +99,7 @@ public class KingMoveCalculator {
         }
     }
 
-    private void downAndRight(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
+    private void downAndRightOne(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
         int currRow = startPosition.getRow();
         int currCol = startPosition.getColumn();
         ChessPosition endPosition = new ChessPosition(currRow - 1, currCol + 1);

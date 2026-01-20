@@ -53,5 +53,130 @@ public class PieceMovesCalculator {
         }
         return answers;
     }
+
+    public static void upContinuous(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
+        boolean edgeNotHit = true;
+        int currRow = startPosition.getRow();
+        int currCol = startPosition.getColumn();
+        while (edgeNotHit) {
+            ChessPosition endPosition = new ChessPosition(currRow + 1, currCol);
+            boolean[] result = calculateMove(startPosition, endPosition, board);
+            if (result[0]) {
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
+            }
+            edgeNotHit = result[1];
+            currRow += 1;
+        }
+    }
+
+    public static void downContinuous(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
+        boolean edgeNotHit = true;
+        int currRow = startPosition.getRow();
+        int currCol = startPosition.getColumn();
+        while (edgeNotHit) {
+            ChessPosition endPosition = new ChessPosition(currRow - 1, currCol);
+            boolean[] result = calculateMove(startPosition, endPosition, board);
+            if (result[0]) {
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
+            }
+            edgeNotHit = result[1];
+            currRow -= 1;
+        }
+    }
+
+    public static void leftContinuous(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
+        boolean edgeNotHit = true;
+        int currRow = startPosition.getRow();
+        int currCol = startPosition.getColumn();
+        while (edgeNotHit) {
+            ChessPosition endPosition = new ChessPosition(currRow, currCol - 1);
+            boolean[] result = calculateMove(startPosition, endPosition, board);
+            if (result[0]) {
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
+            }
+            edgeNotHit = result[1];
+            currCol -= 1;
+        }
+    }
+
+    public static void rightContinuous(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
+        boolean edgeNotHit = true;
+        int currRow = startPosition.getRow();
+        int currCol = startPosition.getColumn();
+        while (edgeNotHit) {
+            ChessPosition endPosition = new ChessPosition(currRow, currCol + 1);
+            boolean[] result = calculateMove(startPosition, endPosition, board);
+            if (result[0]) {
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
+            }
+            edgeNotHit = result[1];
+            currCol += 1;
+        }
+    }
+
+    public static void upAndLeftContinuous(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
+        boolean edgeNotHit = true;
+        int currRow = startPosition.getRow();
+        int currCol = startPosition.getColumn();
+        while (edgeNotHit) {
+            ChessPosition endPosition = new ChessPosition(currRow + 1, currCol - 1);
+            boolean[] result = calculateMove(startPosition, endPosition, board);
+            if (result[0]) {
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
+            }
+            edgeNotHit = result[1];
+            currRow += 1;
+            currCol -= 1;
+        }
+    }
+
+    public static void upAndRightContinuous(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
+        boolean edgeNotHit = true;
+        int currRow = startPosition.getRow();
+        int currCol = startPosition.getColumn();
+        while (edgeNotHit) {
+            ChessPosition endPosition = new ChessPosition(currRow + 1, currCol + 1);
+            boolean[] result = calculateMove(startPosition, endPosition, board);
+            if (result[0]) {
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
+            }
+            edgeNotHit = result[1];
+            currRow += 1;
+            currCol += 1;
+        }
+    }
+
+    public static void downAndLeftContinuous(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
+        boolean edgeNotHit = true;
+        int currRow = startPosition.getRow();
+        int currCol = startPosition.getColumn();
+        while (edgeNotHit) {
+            ChessPosition endPosition = new ChessPosition(currRow - 1, currCol - 1);
+            boolean[] result = calculateMove(startPosition, endPosition, board);
+            if (result[0]) {
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
+            }
+            edgeNotHit = result[1];
+            currRow -= 1;
+            currCol -= 1;
+        }
+    }
+
+    public static void downAndRightContinuous(Collection<ChessMove> possibleMoves, ChessBoard board, ChessPosition startPosition) {
+        boolean edgeNotHit = true;
+        int currRow = startPosition.getRow();
+        int currCol = startPosition.getColumn();
+        while (edgeNotHit) {
+            ChessPosition endPosition = new ChessPosition(currRow - 1, currCol + 1);
+            boolean[] result = calculateMove(startPosition, endPosition, board);
+            if (result[0]) {
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
+            }
+            edgeNotHit = result[1];
+            currRow -= 1;
+            currCol += 1;
+        }
+    }
+
 }
 
