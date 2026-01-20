@@ -45,25 +45,24 @@ public class ChessBoard {
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
                 ChessPosition currPos = new ChessPosition(i, j);
+                ChessGame.TeamColor color = (i <= 2) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
                 if (i > 2 && i < 7) {
                     addPiece(currPos, null);
                 }
+                else if (i == 2 || i == 7) {
+                    addPiece(currPos, new ChessPiece(color, ChessPiece.PieceType.PAWN));
+                }
                 else {
-                    if (i == 2 || i == 7) {
-                        addPiece(currPos, new ChessPiece((i == 2) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
-                    }
-                    else {
-                        if (j == 1 || j == 8) {
-                            addPiece(currPos, new ChessPiece((i == 1) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
-                        } else if (j == 2 || j == 7) {
-                            addPiece(currPos, new ChessPiece((i == 1) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT));
-                        } else if (j == 3 || j == 6) {
-                            addPiece(currPos, new ChessPiece((i == 1) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP));
-                        } else if (j == 4) {
-                            addPiece(currPos, new ChessPiece((i == 1) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN));
-                        } else {
-                            addPiece(currPos, new ChessPiece((i == 1) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
-                        }
+                    if (j == 1 || j == 8) {
+                        addPiece(currPos, new ChessPiece(color, ChessPiece.PieceType.ROOK));
+                    } else if (j == 2 || j == 7) {
+                        addPiece(currPos, new ChessPiece(color, ChessPiece.PieceType.KNIGHT));
+                    } else if (j == 3 || j == 6) {
+                        addPiece(currPos, new ChessPiece(color, ChessPiece.PieceType.BISHOP));
+                    } else if (j == 4) {
+                        addPiece(currPos, new ChessPiece(color, ChessPiece.PieceType.QUEEN));
+                    } else {
+                        addPiece(currPos, new ChessPiece(color, ChessPiece.PieceType.KING));
                     }
                 }
             }
