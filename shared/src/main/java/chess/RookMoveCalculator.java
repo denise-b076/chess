@@ -1,4 +1,4 @@
-package chess.calculators;
+package chess;
 
 public class RookMoveCalculator {
 }

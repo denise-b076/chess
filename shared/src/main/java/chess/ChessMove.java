@@ -53,14 +53,13 @@ public class ChessMove {
     @Override
     public boolean equals(Object o) {
         if (o == null || this.getClass() != o.getClass()) {
-            System.out.println("here am I");
             return false;
         }
         if (o == this) {
             return true;
         }
         ChessMove p = (ChessMove) o;
-        return (this.getStartPosition() == p.getStartPosition() && this.getEndPosition()== p.getEndPosition() && this.getPromotionPiece() == p.getPromotionPiece());
+        return Objects.equals(getStartPosition(), p.getStartPosition()) && Objects.equals(getEndPosition(), p.getEndPosition()) && getPromotionPiece() == p.getPromotionPiece();
     }
 
     @Override
