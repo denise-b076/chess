@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -52,7 +51,12 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        return new ArrayList<>();
+        ChessPiece piece = currBoard.getPiece(startPosition);
+        Collection<ChessMove> basicMoves = piece.pieceMoves(currBoard, startPosition);
+        for(ChessMove move : basicMoves) {
+            System.out.println("checking for check, checkmate, or stalemate");
+        }
+        return basicMoves;
     }
 
     /**
@@ -62,7 +66,17 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        System.out.println("make a move");
+        ChessPosition startPosition = move.getStartPosition();
+        Collection<ChessMove> legalMoves = validMoves(startPosition);
+        if (legalMoves.contains(move)) {
+            ChessPosition endPosition = move.getEndPosition();
+            currBoard.addPiece(endPosition, currBoard.getPiece(startPosition));
+            currBoard.removePiece(startPosition);
+            teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+        }
+        else {
+            throw new InvalidMoveException("illegal move attempted");
+        }
     }
 
     /**
