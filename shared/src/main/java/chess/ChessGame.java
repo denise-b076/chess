@@ -88,23 +88,7 @@ public class ChessGame {
             throw new InvalidMoveException("illegal move attempted");
         }
         else {
-            ChessPosition endPosition = move.getEndPosition();
-            if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
-                if (move.getPromotionPiece() == ChessPiece.PieceType.QUEEN) {
-                    piece = new ChessPiece(piece.getTeamColor(), ChessPiece.PieceType.QUEEN);
-                }
-                else if (move.getPromotionPiece() == ChessPiece.PieceType.BISHOP) {
-                    piece = new ChessPiece(piece.getTeamColor(), ChessPiece.PieceType.BISHOP);
-                }
-                else if (move.getPromotionPiece() == ChessPiece.PieceType.ROOK) {
-                    piece = new ChessPiece(piece.getTeamColor(), ChessPiece.PieceType.ROOK);
-                }
-                else if (move.getPromotionPiece() == ChessPiece.PieceType.KNIGHT) {
-                    piece = new ChessPiece(piece.getTeamColor(), ChessPiece.PieceType.KNIGHT);
-                }
-            }
-            currBoard.addPiece(endPosition, piece);
-            currBoard.removePiece(startPosition);
+            currBoard.makeMove(move);
             teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         }
     }

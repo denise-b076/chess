@@ -55,6 +55,20 @@ public class ChessBoard {
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece piece = getPiece(startPosition);
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            if (move.getPromotionPiece() == ChessPiece.PieceType.QUEEN) {
+                piece = new ChessPiece(piece.getTeamColor(), ChessPiece.PieceType.QUEEN);
+            }
+            else if (move.getPromotionPiece() == ChessPiece.PieceType.BISHOP) {
+                piece = new ChessPiece(piece.getTeamColor(), ChessPiece.PieceType.BISHOP);
+            }
+            else if (move.getPromotionPiece() == ChessPiece.PieceType.ROOK) {
+                piece = new ChessPiece(piece.getTeamColor(), ChessPiece.PieceType.ROOK);
+            }
+            else if (move.getPromotionPiece() == ChessPiece.PieceType.KNIGHT) {
+                piece = new ChessPiece(piece.getTeamColor(), ChessPiece.PieceType.KNIGHT);
+            }
+        }
         addPiece(endPosition, piece);
         removePiece(startPosition);
     }
