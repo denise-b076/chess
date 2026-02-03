@@ -17,7 +17,13 @@ public class ChessBoard {
     }
 
     public ChessBoard(ChessBoard other) {
-        this.squares = other.squares;
+        ChessPiece[][] copyInterface = new ChessPiece[8][8];
+        ChessPiece[] currRow;
+        for (int i = 0; i < 8; i++) {
+            currRow = Arrays.copyOf(other.squares[i], other.squares[i].length);
+            copyInterface[i] = currRow;
+        }
+        squares = copyInterface;
     }
 
     /**
@@ -43,6 +49,14 @@ public class ChessBoard {
 
     public void removePiece(ChessPosition position) {
         squares[position.getRow() - 1][position.getColumn() - 1] = null;
+    }
+
+    public void makeMove(ChessMove move) {
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+        ChessPiece piece = getPiece(startPosition);
+        addPiece(endPosition, piece);
+        removePiece(startPosition);
     }
 
     /**
