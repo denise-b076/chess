@@ -105,13 +105,20 @@ public class ChessGame {
                 ChessPosition currPosition = new ChessPosition(i, j);
                 ChessPiece currPiece = currBoard.getPiece(currPosition);
                 if (currPiece != null && currPiece.getTeamColor() == attackingTeam) {
-                    Collection<ChessMove> possibleMoves = currPiece.pieceMoves(currBoard, currPosition);
-                    for (ChessMove move : possibleMoves) {
-                        if (move.getEndPosition().equals(defendingKingPosition)) {
-                            return true;
-                        }
+                    if (checkHelper(defendingKingPosition, currPiece, currPosition)) {
+                        return true;
                     }
                 }
+            }
+        }
+        return false;
+    }
+
+    private boolean checkHelper(ChessPosition defendingKingPosition, ChessPiece currPiece, ChessPosition currPosition) {
+        Collection<ChessMove> possibleMoves = currPiece.pieceMoves(currBoard, currPosition);
+        for (ChessMove move : possibleMoves) {
+            if (move.getEndPosition().equals(defendingKingPosition)) {
+                return true;
             }
         }
         return false;
