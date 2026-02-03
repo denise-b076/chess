@@ -138,6 +138,21 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
+        return hasNoMoves(teamColor) && isInCheck(teamColor);
+    }
+
+    /**
+     * Determines if the given team is in stalemate, which here is defined as having
+     * no valid moves while not in check.
+     *
+     * @param teamColor which team to check for stalemate
+     * @return True if the specified team is in stalemate, otherwise false
+     */
+    public boolean isInStalemate(TeamColor teamColor) {
+        return hasNoMoves(teamColor) && !isInCheck(teamColor);
+    }
+
+    private boolean hasNoMoves(TeamColor teamColor) {
         Collection<ChessMove> totalLegalMoves = new ArrayList<>();
         for (int i = 1; i < 9; i ++) {
             for (int j = 1; j < 9; j++) {
@@ -150,28 +165,6 @@ public class ChessGame {
             }
         }
         return totalLegalMoves.isEmpty();
-    }
-
-    /**
-     * Determines if the given team is in stalemate, which here is defined as having
-     * no valid moves while not in check.
-     *
-     * @param teamColor which team to check for stalemate
-     * @return True if the specified team is in stalemate, otherwise false
-     */
-    public boolean isInStalemate(TeamColor teamColor) {
-        Collection<ChessMove> totalLegalMoves = new ArrayList<>();
-        for (int i = 1; i < 9; i ++) {
-            for (int j = 1; j < 9; j++) {
-                ChessPosition currPosition = new ChessPosition(i, j);
-                ChessPiece currPiece = currBoard.getPiece(currPosition);
-                if (currPiece != null && currPiece.getTeamColor() == teamColor) {
-                    Collection<ChessMove> currLegalMoves = validMoves(currPosition);
-                    totalLegalMoves.addAll(currLegalMoves);
-                }
-            }
-        }
-        return totalLegalMoves.isEmpty() && !isInCheck(teamColor);
     }
 
     /**
