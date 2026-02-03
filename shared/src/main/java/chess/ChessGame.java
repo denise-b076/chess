@@ -87,10 +87,8 @@ public class ChessGame {
         if (legalMoves == null || !legalMoves.contains(move) || piece.getTeamColor() != teamTurn) {
             throw new InvalidMoveException("illegal move attempted");
         }
-        else {
-            currBoard.makeMove(move);
-            teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
-        }
+        currBoard.makeMove(move);
+        teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
     /**
@@ -140,7 +138,18 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> totalLegalMoves = new ArrayList<>();
+        for (int i = 1; i < 9; i ++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition currPosition = new ChessPosition(i, j);
+                ChessPiece currPiece = currBoard.getPiece(currPosition);
+                if (currPiece != null && currPiece.getTeamColor() == teamColor) {
+                    Collection<ChessMove> currLegalMoves = validMoves(currPosition);
+                    totalLegalMoves.addAll(currLegalMoves);
+                }
+            }
+        }
+        return totalLegalMoves.isEmpty();
     }
 
     /**
