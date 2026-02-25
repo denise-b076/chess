@@ -3,6 +3,7 @@ package service;
 import dataaccess.DataAccessException;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.ForbiddenResponse;
+import io.javalin.http.UnauthorizedResponse;
 import model.AuthData;
 import model.UserData;
 import requestresult.*;
@@ -38,9 +39,15 @@ public class UserService {
         return new RegisterResult(username, authToken);
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws RequestException, DataAccessException {
-        if (userDAO.getUser(loginRequest.username()) == null) {
-            throw new RequestException("username does not exist");
+    public LoginResult login(LoginRequest loginRequest) throws UnauthorizedResponse, DataAccessException {
+        if (loginRequest == null ||
+                loginRequest.username() == null ||
+                loginRequest.password() == null) {
+            throw new BadRequestResponse("Error: bad request");
+        }
+        if (userDAO.getUser(loginRequest.username()) == null ||
+                !loginRequest.password().equals(userDAO.getUser(loginRequest.username()).password())) {
+            throw new UnauthorizedResponse("Error: unauthorized");
         }
         String username = loginRequest.username();
         String authToken = generateToken();
