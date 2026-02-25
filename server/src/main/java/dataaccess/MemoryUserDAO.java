@@ -11,8 +11,11 @@ public class MemoryUserDAO implements UserDAO{
         users.clear();
     }
 
-    public UserData createUser(UserData userData) {
+    public UserData createUser(UserData userData) throws DataAccessException {
         users.put(userData.username(), userData);
+        if (this.getUser(userData.username()) == null) {
+            throw new DataAccessException("Error: unable to add " + userData.username() + " to users");
+        }
         return userData;
     }
 

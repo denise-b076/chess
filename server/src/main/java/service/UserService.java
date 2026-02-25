@@ -1,6 +1,8 @@
 package service;
 
 import dataaccess.DataAccessException;
+import io.javalin.http.BadRequestResponse;
+import io.javalin.http.ForbiddenResponse;
 import model.AuthData;
 import model.UserData;
 import requestresult.*;
@@ -17,9 +19,15 @@ public class UserService {
         this.authDao = authDao;
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) throws RequestException, DataAccessException {
+    public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException, BadRequestResponse, ForbiddenResponse {
+        if (registerRequest == null ||
+                registerRequest.email() == null ||
+                registerRequest.username() == null ||
+                registerRequest.password() == null) {
+            throw new BadRequestResponse("Error: bad request");
+        }
         if (userDAO.getUser(registerRequest.username()) != null) {
-            throw new RequestException("username already exists");
+            throw new ForbiddenResponse("Error: already taken");
         }
         String username = registerRequest.username();
         String password = registerRequest.password();

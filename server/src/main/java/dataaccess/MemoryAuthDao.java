@@ -12,8 +12,11 @@ public class MemoryAuthDao implements AuthDAO {
         auths.clear();
     }
 
-    public AuthData createAuth(AuthData authData) {
+    public AuthData createAuth(AuthData authData) throws DataAccessException {
         auths.put(authData.authToken(), authData);
+        if (this.getAuth(authData) == null) {
+            throw new DataAccessException("Error: unable to add new authToken to auths");
+        }
         return authData;
     }
 
