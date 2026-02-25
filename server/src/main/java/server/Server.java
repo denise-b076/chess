@@ -1,6 +1,5 @@
 package server;
 
-import com.google.gson.Gson;
 import dataaccess.*;
 import handler.ClearHandler;
 import handler.RegisterHandler;
@@ -8,7 +7,6 @@ import io.javalin.*;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
-import io.javalin.http.Context;
 
 
 public class Server {
@@ -40,13 +38,7 @@ public class Server {
 
     private void createHandlers(Javalin javalinServer) {
         javalinServer.delete("/db", new ClearHandler(clearService))
-                .post("/user", new RegisterHandler(userService))
-                .exception(Exception.class, this::exceptionHandler);
-    }
-
-    private void exceptionHandler(Exception ex, Context ctx) {
-        ctx.status(500);
-        ctx.result(new Gson().toJson(ex));
+                .post("/user", new RegisterHandler(userService));
     }
 
 
