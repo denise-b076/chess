@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
 import requestresult.*;
@@ -8,15 +9,15 @@ import java.util.UUID;
 
 public class UserService {
 
-    private final dataaccess.MemoryUserDAO userDAO;
-    private final dataaccess.MemoryAuthDao authDao;
+    private final dataaccess.UserDAO userDAO;
+    private final dataaccess.AuthDAO authDao;
 
-    public UserService(dataaccess.MemoryAuthDao authDao, dataaccess.MemoryUserDAO userDAO) {
+    public UserService(dataaccess.AuthDAO authDao, dataaccess.UserDAO userDAO) {
         this.userDAO = userDAO;
         this.authDao = authDao;
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) throws RequestException {
+    public RegisterResult register(RegisterRequest registerRequest) throws RequestException, DataAccessException {
         if (userDAO.getUser(registerRequest.username()) != null) {
             throw new RequestException("username already exists");
         }
@@ -29,7 +30,7 @@ public class UserService {
         return new RegisterResult(username, authToken);
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws RequestException {
+    public LoginResult login(LoginRequest loginRequest) throws RequestException, DataAccessException {
         if (userDAO.getUser(loginRequest.username()) == null) {
             throw new RequestException("username does not exist");
         }
@@ -39,7 +40,7 @@ public class UserService {
         return new LoginResult(username, authToken);
     }
 
-    public void logout(AuthData authData) throws RequestException {
+    public void logout(AuthData authData) throws RequestException, DataAccessException {
         if (authDao.getAuth(authData) == null) {
             throw new RequestException("invalid authData");
         }

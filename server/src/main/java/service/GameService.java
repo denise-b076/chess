@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
 import requestresult.*;
@@ -8,16 +9,16 @@ import java.util.ArrayList;
 
 public class GameService {
 
-    private final dataaccess.MemoryGameDAO gameDAO;
-    private final dataaccess.MemoryAuthDao authDao;
+    private final dataaccess.GameDAO gameDAO;
+    private final dataaccess.AuthDAO authDAO;
 
-    public GameService(dataaccess.MemoryGameDAO gameDAO, dataaccess.MemoryAuthDao authDao) {
+    public GameService(dataaccess.GameDAO gameDAO, dataaccess.AuthDAO authDAO) {
         this.gameDAO = gameDAO;
-        this.authDao = authDao;
+        this.authDAO = authDAO;
     }
 
-    public void join(AuthData authData, JoinRequest joinRequest) throws RequestException {
-        if (authDao.getAuth(authData) == null) {
+    public void join(AuthData authData, JoinRequest joinRequest) throws RequestException, DataAccessException {
+        if (authDAO.getAuth(authData) == null) {
             throw new RequestException("invalid authData");
         }
         GameData game = gameDAO.getGame(joinRequest.gameID());
@@ -27,15 +28,15 @@ public class GameService {
         gameDAO.updateGame(joinRequest.playerColor(), authData.username(), game);
     }
 
-    public CreateResult create(AuthData authData, CreateRequest createRequest) throws RequestException {
-        if (authDao.getAuth(authData) == null) {
+    public CreateResult create(AuthData authData, CreateRequest createRequest) throws RequestException, DataAccessException {
+        if (authDAO.getAuth(authData) == null) {
             throw new RequestException("invalid authData");
         }
         return new CreateResult(gameDAO.createGame(createRequest.gameName()));
     }
 
-    public ListResult list(AuthData authData) throws RequestException {
-        if (authDao.getAuth(authData) == null) {
+    public ListResult list(AuthData authData) throws RequestException, DataAccessException {
+        if (authDAO.getAuth(authData) == null) {
             throw new RequestException("invalid authData");
         }
         ArrayList<GameData> games = gameDAO.listGames();

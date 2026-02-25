@@ -1,18 +1,20 @@
 package service;
 
+import dataaccess.DataAccessException;
+
 public class ClearService {
 
-    private final dataaccess.MemoryGameDAO gameDAO;
-    private final dataaccess.MemoryAuthDao authDao;
-    private final dataaccess.MemoryUserDAO userDAO;
+    private final dataaccess.GameDAO gameDAO;
+    private final dataaccess.AuthDAO authDao;
+    private final dataaccess.UserDAO userDAO;
 
-    public ClearService(dataaccess.MemoryGameDAO gameDAO, dataaccess.MemoryAuthDao authDao, dataaccess.MemoryUserDAO userDAO) {
+    public ClearService(dataaccess.GameDAO gameDAO, dataaccess.AuthDAO authDao, dataaccess.UserDAO userDAO) {
         this.gameDAO = gameDAO;
         this.authDao = authDao;
         this.userDAO = userDAO;
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         gameDAO.clearGames();
         authDao.clearAuths();
         userDAO.clearUsers();
