@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.*;
 import handler.ClearHandler;
+import handler.RegisterHandler;
 import io.javalin.*;
 import service.ClearService;
 import service.GameService;
@@ -39,6 +40,7 @@ public class Server {
 
     private void createHandlers(Javalin javalinServer) {
         javalinServer.delete("/db", new ClearHandler(clearService))
+                .post("/user", new RegisterHandler(userService))
                 .exception(Exception.class, this::exceptionHandler);
     }
 
