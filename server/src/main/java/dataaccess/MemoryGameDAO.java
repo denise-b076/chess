@@ -27,6 +27,9 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     public ArrayList<GameData> listGames() {
+        if (games.isEmpty()) {
+            return new ArrayList<>();
+        }
         return (ArrayList<GameData>) games.values();
     }
 

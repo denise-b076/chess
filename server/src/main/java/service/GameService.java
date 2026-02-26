@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.DataAccessException;
+import io.javalin.http.UnauthorizedResponse;
 import model.AuthData;
 import model.GameData;
 import requestresult.*;
@@ -35,11 +36,14 @@ public class GameService {
         return new CreateResult(gameDAO.createGame(createRequest.gameName()));
     }
 
-    public ListResult list(AuthData authData) throws RequestException, DataAccessException {
-        if (authDAO.getAuth(authData.authToken()) == null) {
-            throw new RequestException("invalid authData");
+    public ListResult list(String authToken) throws UnauthorizedResponse, DataAccessException {
+        if (authDAO.getAuth(authToken) == null) {
+            throw new UnauthorizedResponse("Error: unauthorized");
         }
         ArrayList<GameData> games = gameDAO.listGames();
+        if (games == null) {
+            throw new DataAccessException("Error: could not retrieve games");
+        }
         return new ListResult(games);
     }
 }

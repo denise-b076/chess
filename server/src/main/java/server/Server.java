@@ -1,10 +1,7 @@
 package server;
 
 import dataaccess.*;
-import handler.ClearHandler;
-import handler.LoginHandler;
-import handler.LogoutHandler;
-import handler.RegisterHandler;
+import handler.*;
 import io.javalin.*;
 import service.ClearService;
 import service.GameService;
@@ -42,7 +39,8 @@ public class Server {
         javalinServer.delete("/db", new ClearHandler(clearService))
                 .post("/user", new RegisterHandler(userService))
                 .post("/session", new LoginHandler(userService))
-                .delete("/session", new LogoutHandler(userService));
+                .delete("/session", new LogoutHandler(userService))
+                .get("/game", new ListHandler(gameService));
     }
 
 
