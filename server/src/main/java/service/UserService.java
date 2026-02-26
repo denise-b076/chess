@@ -6,7 +6,9 @@ import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.UnauthorizedResponse;
 import model.AuthData;
 import model.UserData;
-import requestresult.*;
+import request.LoginRequest;
+import request.RegisterRequest;
+import result.*;
 
 import java.util.UUID;
 

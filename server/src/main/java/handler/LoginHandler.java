@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import io.javalin.http.*;
 import org.jetbrains.annotations.NotNull;
-import requestresult.LoginRequest;
-import requestresult.LoginResult;
+import request.LoginRequest;
+import result.LoginResult;
 import service.UserService;
 
 import java.util.Map;

@@ -5,7 +5,9 @@ import io.javalin.http.BadRequestResponse;
 import io.javalin.http.UnauthorizedResponse;
 import model.AuthData;
 import model.GameData;
-import requestresult.*;
+import request.CreateRequest;
+import request.JoinRequest;
+import result.*;
 
 import java.util.ArrayList;
 

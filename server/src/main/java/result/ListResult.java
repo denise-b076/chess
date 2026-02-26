@@ -1,4 +1,4 @@
-package requestresult;
+package result;
 
 import model.GameData;
 

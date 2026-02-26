@@ -6,8 +6,8 @@ import io.javalin.http.Context;
 import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
-import requestresult.RegisterRequest;
-import requestresult.RegisterResult;
+import request.RegisterRequest;
+import result.RegisterResult;
 import service.UserService;
 
 import java.util.Map;
