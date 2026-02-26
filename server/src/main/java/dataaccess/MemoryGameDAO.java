@@ -16,9 +16,12 @@ public class MemoryGameDAO implements GameDAO {
         games.clear();
     }
 
-    public int createGame(String gameName) {
+    public int createGame(String gameName) throws DataAccessException {
         GameData game = new GameData(nextId++, null, null, gameName, new ChessGame());
         games.put(game.gameID(), game);
+        if (getGame(game.gameID()) == null) {
+            throw new DataAccessException("Error: could not create new game");
+        }
         return game.gameID();
     }
 
@@ -30,7 +33,11 @@ public class MemoryGameDAO implements GameDAO {
         if (games.isEmpty()) {
             return new ArrayList<>();
         }
-        return (ArrayList<GameData>) games.values();
+        ArrayList<GameData> listOfGames = new ArrayList<>();
+        for (int id : games.keySet()) {
+            listOfGames.add(games.get(id));
+        }
+        return listOfGames;
     }
 
     public void updateGame(String playerColor, String username, GameData gameData) {

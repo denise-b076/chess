@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.DataAccessException;
+import io.javalin.http.BadRequestResponse;
 import io.javalin.http.UnauthorizedResponse;
 import model.AuthData;
 import model.GameData;
@@ -29,9 +30,12 @@ public class GameService {
         gameDAO.updateGame(joinRequest.playerColor(), authData.username(), game);
     }
 
-    public CreateResult create(AuthData authData, CreateRequest createRequest) throws RequestException, DataAccessException {
-        if (authDAO.getAuth(authData.authToken()) == null) {
-            throw new RequestException("invalid authData");
+    public CreateResult create(String authToken, CreateRequest createRequest) throws UnauthorizedResponse, BadRequestResponse, DataAccessException {
+        if (authDAO.getAuth(authToken) == null) {
+            throw new UnauthorizedResponse("Error: unauthorized");
+        }
+        if (createRequest.gameName() == null) {
+            throw new BadRequestResponse("Error: bad request");
         }
         return new CreateResult(gameDAO.createGame(createRequest.gameName()));
     }

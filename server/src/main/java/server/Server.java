@@ -40,7 +40,8 @@ public class Server {
                 .post("/user", new RegisterHandler(userService))
                 .post("/session", new LoginHandler(userService))
                 .delete("/session", new LogoutHandler(userService))
-                .get("/game", new ListHandler(gameService));
+                .get("/game", new ListHandler(gameService))
+                .post("/game", new CreateHandler(gameService));
     }
 
 
