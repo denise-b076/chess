@@ -19,15 +19,16 @@ public class GameService {
         this.authDAO = authDAO;
     }
 
-    public void join(AuthData authData, JoinRequest joinRequest) throws RequestException, DataAccessException {
-        if (authDAO.getAuth(authData.authToken()) == null) {
-            throw new RequestException("invalid authData");
+    public void join(String authToken, JoinRequest joinRequest) throws UnauthorizedResponse, DataAccessException, BadRequestResponse {
+        AuthData requestedAuthData = authDAO.getAuth(authToken);
+        if (requestedAuthData == null) {
+            throw new UnauthorizedResponse("Error: unauthorized");
         }
         GameData game = gameDAO.getGame(joinRequest.gameID());
         if (game == null) {
-            throw new RequestException("game DNE");
+            throw new BadRequestResponse("Error: bad request");
         }
-        gameDAO.updateGame(joinRequest.playerColor(), authData.username(), game);
+        gameDAO.updateGame(joinRequest.playerColor(), requestedAuthData.username(), game);
     }
 
     public CreateResult create(String authToken, CreateRequest createRequest) throws UnauthorizedResponse, BadRequestResponse, DataAccessException {

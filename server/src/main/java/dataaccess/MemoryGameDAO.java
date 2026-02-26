@@ -1,6 +1,8 @@
 package dataaccess;
 
 import chess.ChessGame;
+import io.javalin.http.BadRequestResponse;
+import io.javalin.http.ForbiddenResponse;
 import model.GameData;
 
 import java.util.ArrayList;
@@ -40,22 +42,31 @@ public class MemoryGameDAO implements GameDAO {
         return listOfGames;
     }
 
-    public void updateGame(String playerColor, String username, GameData gameData) {
+    public void updateGame(String playerColor, String username, GameData gameData) throws BadRequestResponse {
         GameData updated;
         if (Objects.equals(playerColor, "WHITE")) {
             updated = whiteUpdate(username,gameData);
         }
-        else {
+        else if (Objects.equals(playerColor, "BLACK")) {
             updated = blackUpdate(username, gameData);
+        }
+        else {
+            throw new BadRequestResponse("Error: invalid playerColor");
         }
         games.put(updated.gameID(), updated);
     }
 
     private GameData whiteUpdate(String username, GameData gameData) {
+        if (gameData.whiteUsername() != null) {
+            throw new ForbiddenResponse("Error: already taken");
+        }
         return new GameData(gameData.gameID(), username, gameData.blackUsername(), gameData.gameName(), gameData.game());
     }
 
     private GameData blackUpdate(String username, GameData gameData) {
+        if (gameData.blackUsername() != null) {
+            throw new ForbiddenResponse("Error: already taken");
+        }
         return new GameData(gameData.gameID(), gameData.whiteUsername(), username, gameData.gameName(), gameData.game());
     }
 
