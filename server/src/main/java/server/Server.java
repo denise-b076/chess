@@ -3,6 +3,7 @@ package server;
 import dataaccess.*;
 import handler.ClearHandler;
 import handler.LoginHandler;
+import handler.LogoutHandler;
 import handler.RegisterHandler;
 import io.javalin.*;
 import service.ClearService;
@@ -21,7 +22,7 @@ public class Server {
     public Server() {
         UserDAO userDAO = new MemoryUserDAO();
         GameDAO gameDAO = new MemoryGameDAO();
-        AuthDAO authDAO = new MemoryAuthDao();
+        AuthDAO authDAO = new MemoryAuthDAO();
         this.clearService = new ClearService(gameDAO, authDAO, userDAO);
         this.userService = new UserService(authDAO, userDAO);
         this.gameService = new GameService(gameDAO, authDAO);
@@ -40,7 +41,8 @@ public class Server {
     private void createHandlers(Javalin javalinServer) {
         javalinServer.delete("/db", new ClearHandler(clearService))
                 .post("/user", new RegisterHandler(userService))
-                .post("/session", new LoginHandler(userService));
+                .post("/session", new LoginHandler(userService))
+                .delete("/session", new LogoutHandler(userService));
     }
 
 

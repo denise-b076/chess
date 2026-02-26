@@ -6,10 +6,10 @@ public interface AuthDAO {
 
     void clearAuths() throws DataAccessException;
 
-    AuthData createAuth(AuthData authData) throws DataAccessException;
+    void createAuth(AuthData authData) throws DataAccessException;
 
     void deleteAuth(AuthData authData) throws DataAccessException;
 
-    AuthData getAuth(AuthData authData) throws DataAccessException;
+    AuthData getAuth(String authToken) throws DataAccessException;
 
 }

@@ -18,7 +18,7 @@ public class GameService {
     }
 
     public void join(AuthData authData, JoinRequest joinRequest) throws RequestException, DataAccessException {
-        if (authDAO.getAuth(authData) == null) {
+        if (authDAO.getAuth(authData.authToken()) == null) {
             throw new RequestException("invalid authData");
         }
         GameData game = gameDAO.getGame(joinRequest.gameID());
@@ -29,14 +29,14 @@ public class GameService {
     }
 
     public CreateResult create(AuthData authData, CreateRequest createRequest) throws RequestException, DataAccessException {
-        if (authDAO.getAuth(authData) == null) {
+        if (authDAO.getAuth(authData.authToken()) == null) {
             throw new RequestException("invalid authData");
         }
         return new CreateResult(gameDAO.createGame(createRequest.gameName()));
     }
 
     public ListResult list(AuthData authData) throws RequestException, DataAccessException {
-        if (authDAO.getAuth(authData) == null) {
+        if (authDAO.getAuth(authData.authToken()) == null) {
             throw new RequestException("invalid authData");
         }
         ArrayList<GameData> games = gameDAO.listGames();

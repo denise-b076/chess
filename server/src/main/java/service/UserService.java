@@ -35,7 +35,7 @@ public class UserService {
         String email = registerRequest.email();
         String authToken = generateToken();
         userDAO.createUser(new UserData(username, password, email));
-        authDao.createAuth(new AuthData(username, authToken));
+        authDao.createAuth(new AuthData(authToken, username));
         return new RegisterResult(username, authToken);
     }
 
@@ -51,15 +51,16 @@ public class UserService {
         }
         String username = loginRequest.username();
         String authToken = generateToken();
-        authDao.createAuth(new AuthData(username, authToken));
+        authDao.createAuth(new AuthData(authToken, username));
         return new LoginResult(username, authToken);
     }
 
-    public void logout(AuthData authData) throws RequestException, DataAccessException {
-        if (authDao.getAuth(authData) == null) {
-            throw new RequestException("invalid authData");
+    public void logout(String authToken) throws UnauthorizedResponse, DataAccessException {
+        AuthData requestedAuthData = authDao.getAuth(authToken);
+        if (requestedAuthData == null) {
+            throw new UnauthorizedResponse("Error: unauthorized");
         }
-        authDao.deleteAuth(authData);
+        authDao.deleteAuth(requestedAuthData);
     }
 
     private String generateToken() {
