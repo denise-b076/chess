@@ -23,7 +23,7 @@ public class JoinHandler implements Handler {
             String requestedAuthToken = context.header("authorization");
             gameService.join(requestedAuthToken, joinRequest);
         }
-        catch(Exception e) {
+        catch (Exception e) {
             if (e.getClass() == UnauthorizedResponse.class) {
                 context.status(401);
             }

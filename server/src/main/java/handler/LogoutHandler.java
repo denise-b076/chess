@@ -22,7 +22,7 @@ public class LogoutHandler implements Handler {
             String requestedAuthToken = context.header("authorization");
             userService.logout(requestedAuthToken);
         }
-        catch(Exception e) {
+        catch (Exception e) {
             if (e.getClass() == DataAccessException.class) {
                 context.status(500);
             }

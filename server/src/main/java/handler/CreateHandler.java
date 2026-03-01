@@ -27,7 +27,7 @@ public class CreateHandler implements Handler {
             CreateResult createResult = gameService.create(requestedAuthToken, createRequest);
             context.result(new Gson().toJson(createResult));
         }
-        catch(Exception e) {
+        catch (Exception e) {
             if (e.getClass() == BadRequestResponse.class) {
                 context.status(400);
             }

@@ -23,7 +23,7 @@ public class LoginHandler implements Handler {
             LoginResult loginResult = userService.login(loginRequest);
             context.result(new Gson().toJson(loginResult));
         }
-        catch(Exception e) {
+        catch (Exception e) {
             if (e.getClass() == BadRequestResponse.class) {
                 context.status(400);
             }

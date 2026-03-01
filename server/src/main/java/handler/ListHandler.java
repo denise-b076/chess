@@ -25,7 +25,7 @@ public class ListHandler implements Handler {
             ListResult listResult = gameService.list(requestedAuthToken);
             context.result(new Gson().toJson(listResult));
         }
-        catch(Exception e) {
+        catch (Exception e) {
             if (e.getClass() == UnauthorizedResponse.class) {
                 context.status(401);
             }
