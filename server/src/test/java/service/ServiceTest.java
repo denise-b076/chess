@@ -20,6 +20,7 @@ import request.RegisterRequest;
 import result.CreateResult;
 import result.ListResult;
 import result.LoginResult;
+import result.RegisterResult;
 
 import java.util.ArrayList;
 
@@ -41,6 +42,16 @@ public class ServiceTest {
         clearService.clear();
         RegisterRequest registerRequest = new RegisterRequest(username, password, email);
         userService.register(registerRequest);
+    }
+
+    @Test
+    void registerSuccess() throws DataAccessException {
+        String newUser = "newUser";
+        String newPass = "newPass";
+        String newEmail = "newEmail";
+        RegisterRequest registerRequest = new RegisterRequest(newUser, newPass, newEmail);
+        RegisterResult actualRegister = userService.register(registerRequest);
+        assertTrue(actualRegister.username().equals(newUser) && actualRegister.authToken() != null);
     }
 
     @Test
@@ -79,6 +90,13 @@ public class ServiceTest {
         expectedList.add(gameData);
         ListResult actualList = gameService.list(login.authToken());
         assertEquals(actualList.games(), expectedList);
+    }
+
+    @Test
+    void clearSuccess() throws DataAccessException {
+        LoginResult login = userService.login(new LoginRequest(username, password));
+        gameService.create(login.authToken(), new CreateRequest("gameName"));
+        assertDoesNotThrow(clearService::clear);
     }
 
     @Test
