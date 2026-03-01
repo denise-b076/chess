@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
@@ -9,6 +10,7 @@ import dataaccess.memory.MemoryGameDAO;
 import dataaccess.memory.MemoryUserDAO;
 import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.UnauthorizedResponse;
+import model.GameData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import request.CreateRequest;
@@ -16,7 +18,11 @@ import request.JoinRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.CreateResult;
+import result.ListResult;
 import result.LoginResult;
+
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTest {
@@ -65,6 +71,17 @@ public class ServiceTest {
     }
 
     @Test
+    void listSuccess() throws DataAccessException {
+        LoginResult login = userService.login(new LoginRequest(username, password));
+        gameService.create(login.authToken(), new CreateRequest("gameName"));
+        GameData gameData = new GameData(1, null, null, "gameName", new ChessGame());
+        ArrayList<GameData> expectedList = new ArrayList<>();
+        expectedList.add(gameData);
+        ListResult actualList = gameService.list(login.authToken());
+        assertEquals(actualList.games(), expectedList);
+    }
+
+    @Test
     void registerSameUser() {
         RegisterRequest identicalRequest = new RegisterRequest(username, password, email);
         assertThrows(ForbiddenResponse.class, () -> userService.register(identicalRequest));
@@ -77,14 +94,12 @@ public class ServiceTest {
     }
 
     @Test
-    void logoutInvalidAuth() throws DataAccessException {
-        userService.login(new LoginRequest(username, password));
+    void logoutInvalidAuth() {
         assertThrows(UnauthorizedResponse.class, () -> userService.logout("batman"));
     }
 
     @Test
-    void createInvalidAuth() throws DataAccessException {
-        userService.login(new LoginRequest(username, password));
+    void createInvalidAuth() {
         assertThrows(UnauthorizedResponse.class, () -> gameService.create("batman", new CreateRequest("invalidAuth")));
     }
 
@@ -94,5 +109,10 @@ public class ServiceTest {
         CreateResult game = gameService.create(login.authToken(), new CreateRequest("gameName"));
         gameService.join(login.authToken(), new JoinRequest("WHITE", game.gameID()));
         assertThrows(ForbiddenResponse.class, () -> gameService.join(login.authToken(), new JoinRequest("WHITE", game.gameID())));
+    }
+
+    @Test
+    void listInvalidAuth() {
+        assertThrows(UnauthorizedResponse.class, () -> gameService.list("batman"));
     }
 }
