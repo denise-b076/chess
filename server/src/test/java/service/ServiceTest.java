@@ -27,19 +27,21 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTest {
-    static final UserDAO userDAO = new MemoryUserDAO();
-    static final GameDAO gameDAO = new MemoryGameDAO();
-    static final AuthDAO authDAO = new MemoryAuthDAO();
-    static final ClearService clearService = new ClearService(gameDAO, authDAO, userDAO);
-    static final GameService gameService = new GameService(gameDAO, authDAO);
-    static final UserService userService = new UserService(authDAO, userDAO);
+    static ClearService clearService;
+    static GameService gameService;
+    static UserService userService;
     static final String username = "username";
     static final String password = "password";
     static final String email = "email";
 
     @BeforeEach
-    void clearAndRegister() throws DataAccessException {
-        clearService.clear();
+    void resetAndRegister() throws DataAccessException {
+        UserDAO userDAO = new MemoryUserDAO();
+        GameDAO gameDAO = new MemoryGameDAO();
+        AuthDAO authDAO = new MemoryAuthDAO();
+        clearService = new ClearService(gameDAO, authDAO, userDAO);
+        userService = new UserService(authDAO, userDAO);
+        gameService = new GameService(gameDAO, authDAO);
         RegisterRequest registerRequest = new RegisterRequest(username, password, email);
         userService.register(registerRequest);
     }
