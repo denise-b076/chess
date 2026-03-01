@@ -12,6 +12,7 @@ import io.javalin.http.UnauthorizedResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import request.CreateRequest;
+import request.JoinRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.CreateResult;
@@ -57,6 +58,13 @@ public class ServiceTest {
     }
 
     @Test
+    void joinSuccess() throws DataAccessException {
+        LoginResult login = userService.login(new LoginRequest(username, password));
+        CreateResult game = gameService.create(login.authToken(), new CreateRequest("gameName"));
+        assertDoesNotThrow(() -> gameService.join(login.authToken(), new JoinRequest("WHITE", game.gameID())));
+    }
+
+    @Test
     void registerSameUser() {
         RegisterRequest identicalRequest = new RegisterRequest(username, password, email);
         assertThrows(ForbiddenResponse.class, () -> userService.register(identicalRequest));
@@ -78,5 +86,13 @@ public class ServiceTest {
     void createInvalidAuth() throws DataAccessException {
         userService.login(new LoginRequest(username, password));
         assertThrows(UnauthorizedResponse.class, () -> gameService.create("batman", new CreateRequest("invalidAuth")));
+    }
+
+    @Test
+    void joinAlreadyTaken() throws DataAccessException {
+        LoginResult login = userService.login(new LoginRequest(username, password));
+        CreateResult game = gameService.create(login.authToken(), new CreateRequest("gameName"));
+        gameService.join(login.authToken(), new JoinRequest("WHITE", game.gameID()));
+        assertThrows(ForbiddenResponse.class, () -> gameService.join(login.authToken(), new JoinRequest("WHITE", game.gameID())));
     }
 }
