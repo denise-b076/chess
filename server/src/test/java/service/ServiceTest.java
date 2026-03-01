@@ -30,9 +30,9 @@ public class ServiceTest {
     static ClearService clearService;
     static GameService gameService;
     static UserService userService;
-    static final String username = "username";
-    static final String password = "password";
-    static final String email = "email";
+    static final String USERNAME = "USERNAME";
+    static final String PASSWORD = "password";
+    static final String EMAIL = "email";
 
     @BeforeEach
     void resetAndRegister() throws DataAccessException {
@@ -42,7 +42,7 @@ public class ServiceTest {
         clearService = new ClearService(gameDAO, authDAO, userDAO);
         userService = new UserService(authDAO, userDAO);
         gameService = new GameService(gameDAO, authDAO);
-        RegisterRequest registerRequest = new RegisterRequest(username, password, email);
+        RegisterRequest registerRequest = new RegisterRequest(USERNAME, PASSWORD, EMAIL);
         userService.register(registerRequest);
     }
 
@@ -58,19 +58,19 @@ public class ServiceTest {
 
     @Test
     void loginSuccess() throws DataAccessException {
-        LoginResult actualLogin = userService.login(new LoginRequest(username, password));
-        assertTrue(actualLogin.username().equals(username) && actualLogin.authToken() != null);
+        LoginResult actualLogin = userService.login(new LoginRequest(USERNAME, PASSWORD));
+        assertTrue(actualLogin.username().equals(USERNAME) && actualLogin.authToken() != null);
     }
 
     @Test
     void logoutSuccess() throws DataAccessException {
-        LoginResult login = userService.login(new LoginRequest(username, password));
+        LoginResult login = userService.login(new LoginRequest(USERNAME, PASSWORD));
         assertDoesNotThrow(() -> userService.logout(login.authToken()));
     }
 
     @Test
     void createSuccess() throws DataAccessException {
-        LoginResult login = userService.login(new LoginRequest(username, password));
+        LoginResult login = userService.login(new LoginRequest(USERNAME, PASSWORD));
         CreateResult actual = gameService.create(login.authToken(), new CreateRequest("gameName"));
         CreateResult expected = new CreateResult(1);
         assertEquals(expected, actual);
@@ -78,14 +78,14 @@ public class ServiceTest {
 
     @Test
     void joinSuccess() throws DataAccessException {
-        LoginResult login = userService.login(new LoginRequest(username, password));
+        LoginResult login = userService.login(new LoginRequest(USERNAME, PASSWORD));
         CreateResult game = gameService.create(login.authToken(), new CreateRequest("gameName"));
         assertDoesNotThrow(() -> gameService.join(login.authToken(), new JoinRequest("WHITE", game.gameID())));
     }
 
     @Test
     void listSuccess() throws DataAccessException {
-        LoginResult login = userService.login(new LoginRequest(username, password));
+        LoginResult login = userService.login(new LoginRequest(USERNAME, PASSWORD));
         gameService.create(login.authToken(), new CreateRequest("gameName"));
         GameData gameData = new GameData(1, null, null, "gameName", new ChessGame());
         ArrayList<GameData> expectedList = new ArrayList<>();
@@ -96,20 +96,20 @@ public class ServiceTest {
 
     @Test
     void clearSuccess() throws DataAccessException {
-        LoginResult login = userService.login(new LoginRequest(username, password));
+        LoginResult login = userService.login(new LoginRequest(USERNAME, PASSWORD));
         gameService.create(login.authToken(), new CreateRequest("gameName"));
         assertDoesNotThrow(clearService::clear);
     }
 
     @Test
     void registerSameUser() {
-        RegisterRequest identicalRequest = new RegisterRequest(username, password, email);
+        RegisterRequest identicalRequest = new RegisterRequest(USERNAME, PASSWORD, EMAIL);
         assertThrows(ForbiddenResponse.class, () -> userService.register(identicalRequest));
     }
 
     @Test
     void loginWrongPassword() {
-        LoginRequest wrongPassword = new LoginRequest(username, "batman");
+        LoginRequest wrongPassword = new LoginRequest(USERNAME, "batman");
         assertThrows(UnauthorizedResponse.class, () -> userService.login(wrongPassword));
     }
 
@@ -125,7 +125,7 @@ public class ServiceTest {
 
     @Test
     void joinAlreadyTaken() throws DataAccessException {
-        LoginResult login = userService.login(new LoginRequest(username, password));
+        LoginResult login = userService.login(new LoginRequest(USERNAME, PASSWORD));
         CreateResult game = gameService.create(login.authToken(), new CreateRequest("gameName"));
         gameService.join(login.authToken(), new JoinRequest("WHITE", game.gameID()));
         assertThrows(ForbiddenResponse.class, () -> gameService.join(login.authToken(), new JoinRequest("WHITE", game.gameID())));
