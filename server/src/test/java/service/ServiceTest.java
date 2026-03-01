@@ -11,8 +11,10 @@ import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.UnauthorizedResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import request.CreateRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
+import result.CreateResult;
 import result.LoginResult;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -47,6 +49,14 @@ public class ServiceTest {
     }
 
     @Test
+    void createSuccess() throws DataAccessException {
+        LoginResult login = userService.login(new LoginRequest(username, password));
+        CreateResult actual = gameService.create(login.authToken(), new CreateRequest("gameName"));
+        CreateResult expected = new CreateResult(1);
+        assertEquals(expected, actual);
+    }
+
+    @Test
     void registerSameUser() {
         RegisterRequest identicalRequest = new RegisterRequest(username, password, email);
         assertThrows(ForbiddenResponse.class, () -> userService.register(identicalRequest));
@@ -62,5 +72,11 @@ public class ServiceTest {
     void logoutInvalidAuth() throws DataAccessException {
         userService.login(new LoginRequest(username, password));
         assertThrows(UnauthorizedResponse.class, () -> userService.logout("batman"));
+    }
+
+    @Test
+    void createInvalidAuth() throws DataAccessException {
+        userService.login(new LoginRequest(username, password));
+        assertThrows(UnauthorizedResponse.class, () -> gameService.create("batman", new CreateRequest("invalidAuth")));
     }
 }
