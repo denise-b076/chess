@@ -33,7 +33,7 @@ public class SQLAuthDAO implements AuthDAO {
             CREATE TABLE IF NOT EXISTS auth (
             token varchar(256) NOT NULL,
             user varchar(256) NOT NULL,
-            foreign key(user_id) references user(user)
+            foreign key(user) references user(user)
             )
             """
     };
