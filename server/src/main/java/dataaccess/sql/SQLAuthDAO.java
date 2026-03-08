@@ -6,7 +6,7 @@ import model.AuthData;
 
 public class SQLAuthDAO implements AuthDAO {
 
-    public SQLAuthDAO() throws DataAccessException {
+    public SQLAuthDAO() {
 
     }
 

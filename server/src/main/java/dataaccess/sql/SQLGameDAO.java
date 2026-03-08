@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class SQLGameDAO implements GameDAO {
 
-    public SQLGameDAO() throws DataAccessException {
+    public SQLGameDAO() {
 
     }
 
