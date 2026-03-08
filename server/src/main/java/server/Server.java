@@ -4,11 +4,17 @@ import dataaccess.*;
 import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.memory.MemoryGameDAO;
 import dataaccess.memory.MemoryUserDAO;
+import dataaccess.sql.DatabaseManager;
+import dataaccess.sql.SQLAuthDAO;
+import dataaccess.sql.SQLGameDAO;
+import dataaccess.sql.SQLUserDAO;
 import handler.*;
 import io.javalin.*;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
+
+import java.sql.SQLException;
 
 
 public class Server {
@@ -21,16 +27,24 @@ public class Server {
 
     public Server() {
         UserDAO userDAO = new MemoryUserDAO();
-        GameDAO gameDAO = new MemoryGameDAO();
         AuthDAO authDAO = new MemoryAuthDAO();
-        this.clearService = new ClearService(gameDAO, authDAO, userDAO);
-        this.userService = new UserService(authDAO, userDAO);
-        this.gameService = new GameService(gameDAO, authDAO);
+        GameDAO gameDAO = new MemoryGameDAO();
+        try {
+            configureDatabase();
+            userDAO = new SQLUserDAO();
+            gameDAO = new SQLGameDAO();
+            authDAO = new SQLAuthDAO();
+        } catch (Exception ex){
+            System.out.print("SQL usage failed, using memory DAOs");
+        }
+            this.clearService = new ClearService(gameDAO, authDAO, userDAO);
+            this.userService = new UserService(authDAO, userDAO);
+            this.gameService = new GameService(gameDAO, authDAO);
 
-        javalin = Javalin.create(config -> config.staticFiles.add("web"));
+            javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
-        // Register your endpoints and exception handlers here.
-        createHandlers(javalin);
+            // Register your endpoints and exception handlers here.
+            createHandlers(javalin);
     }
 
     public int run(int desiredPort) {
@@ -51,5 +65,46 @@ public class Server {
 
     public void stop() {
         javalin.stop();
+    }
+
+    public final String[] createStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS user (
+            user varchar(256) NOT NULL,
+            password varchar(256) NOT NULL,
+            email varchar(256) NOT NULL,
+            PRIMARY KEY (user)
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS games (
+            game_id int NOT NULL AUTO_INCREMENT,
+            game_name varchar(256) NOT NULL,
+            white_username varchar(256),
+            black_username varchar(256),
+            game_json TEXT DEFAULT NULL,
+            PRIMARY KEY(game_id)
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS auth (
+            token varchar(256) NOT NULL,
+            user varchar(256) NOT NULL,
+            PRIMARY KEY (token)
+            );
+            """
+    };
+
+    public void configureDatabase() throws DataAccessException{
+        DatabaseManager.createDatabase();
+        try (var conn = DatabaseManager.getConnection()) {
+            for (String statement : createStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
+        }
     }
 }
