@@ -10,6 +10,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 
@@ -105,6 +108,21 @@ public class DataAccessTest {
     void getUserSuccess() throws DataAccessException {
         UserData expected = new UserData("user", "pass", "email");
         assertEquals(expected, sqlUserDAO.getUser("user"));
+    }
+
+    @Test
+    void clearUsersSuccess() throws DataAccessException{
+        sqlUserDAO.clearUsers();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM user";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    assertFalse(rs.next());
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
     }
 
     @Test
