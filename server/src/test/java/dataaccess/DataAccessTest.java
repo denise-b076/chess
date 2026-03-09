@@ -102,8 +102,19 @@ public class DataAccessTest {
     }
 
     @Test
+    void getUserSuccess() throws DataAccessException {
+        UserData expected = new UserData("user", "pass", "email");
+        assertEquals(expected, sqlUserDAO.getUser("user"));
+    }
+
+    @Test
     void createUserNullField() {
         UserData failure = new UserData(null, "oh", "no");
         assertThrows(DataAccessException.class, () -> sqlUserDAO.createUser(failure));
+    }
+
+    @Test
+    void getUserNotInDB() throws DataAccessException {
+        assertNull(sqlUserDAO.getUser("ironman"));
     }
 }

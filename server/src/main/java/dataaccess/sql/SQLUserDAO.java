@@ -3,10 +3,10 @@ package dataaccess.sql;
 import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.UserData;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class SQLUserDAO implements UserDAO {
@@ -21,17 +21,26 @@ public class SQLUserDAO implements UserDAO {
 
     public UserData createUser(UserData userData) throws DataAccessException {
         var statement = "INSERT INTO user (user, password, email) VALUES (?, ?, ?)";
-        String hashedPass = passwordHash(userData.password());
-        executeUpdate(statement, userData.username(), hashedPass, userData.email());
+        executeUpdate(statement, userData.username(), userData.password(), userData.email());
         return userData;
     }
 
     public UserData getUser(String username) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT user, password, email FROM user WHERE user=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        System.out.print(rs.getString("user") + " " + rs.getString("password"));
+                        return new UserData(rs.getString("user"), rs.getString("password"), rs.getString("email"));
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
         return null;
-    }
-
-    private String passwordHash(String password) {
-        return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 
     private void executeUpdate(String statement, String... params) throws DataAccessException {
