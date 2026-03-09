@@ -35,7 +35,7 @@ public class DataAccessTest {
 
     @BeforeAll
     static void startDatabase() throws DataAccessException {
-        String[] createStatements = Server.createStatements;
+        String[] createStatements = Server.CREATE_STATEMENTS;
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             for (String statement : createStatements) {

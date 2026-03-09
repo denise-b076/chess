@@ -67,7 +67,7 @@ public class Server {
         javalin.stop();
     }
 
-    public static final String[] createStatements = {
+    public static final String[] CREATE_STATEMENTS = {
             """
             CREATE TABLE IF NOT EXISTS user (
             user varchar(256) NOT NULL,
@@ -98,7 +98,7 @@ public class Server {
     public void configureDatabase() throws DataAccessException{
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
+            for (String statement : CREATE_STATEMENTS) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
                 }
