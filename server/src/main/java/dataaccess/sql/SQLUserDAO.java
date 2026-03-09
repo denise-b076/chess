@@ -17,12 +17,12 @@ public class SQLUserDAO implements UserDAO {
 
     public void clearUsers() throws DataAccessException {
         var statement = "TRUNCATE user";
-        executeUpdate(statement);
+        DatabaseManager.executeUpdate(statement);
     }
 
     public UserData createUser(UserData userData) throws DataAccessException {
         var statement = "INSERT INTO user (user, password, email) VALUES (?, ?, ?)";
-        executeUpdate(statement, userData.username(), userData.password(), userData.email());
+        DatabaseManager.executeUpdate(statement, userData.username(), userData.password(), userData.email());
         return userData;
     }
 
@@ -38,21 +38,8 @@ public class SQLUserDAO implements UserDAO {
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
         return null;
-    }
-
-    private void executeUpdate(String statement, String... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                for (int i = 0; i < params.length; i++) {
-                    ps.setString(i + 1, params[i]);
-                }
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error: " + e.getMessage());
-        }
     }
 }

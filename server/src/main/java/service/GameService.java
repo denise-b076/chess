@@ -27,10 +27,10 @@ public class GameService {
             throw new UnauthorizedResponse("Error: unauthorized");
         }
         GameData game = gameDAO.getGame(joinRequest.gameID());
-        if (game == null) {
+        if (game == null || joinRequest.playerColor() == null) {
             throw new BadRequestResponse("Error: bad request");
         }
-        gameDAO.updateGame(joinRequest.playerColor(), requestedAuthData.username(), game);
+        gameDAO.joinGame(joinRequest.playerColor(), requestedAuthData.username(), game);
     }
 
     public CreateResult create(String authToken, CreateRequest createRequest) throws UnauthorizedResponse, BadRequestResponse, DataAccessException {

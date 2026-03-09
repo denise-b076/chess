@@ -44,7 +44,7 @@ public class MemoryGameDAO implements GameDAO {
         return listOfGames;
     }
 
-    public void updateGame(String playerColor, String username, GameData gameData) throws BadRequestResponse {
+    public void joinGame(String playerColor, String username, GameData gameData) throws BadRequestResponse {
         GameData updated;
         if (Objects.equals(playerColor, "WHITE")) {
             updated = whiteUpdate(username,gameData);

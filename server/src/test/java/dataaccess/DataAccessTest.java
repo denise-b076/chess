@@ -10,11 +10,13 @@ import dataaccess.sql.SQLAuthDAO;
 import dataaccess.sql.SQLGameDAO;
 import dataaccess.sql.SQLUserDAO;
 import io.javalin.http.BadRequestResponse;
+import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.Connection;
@@ -183,7 +185,7 @@ public class DataAccessTest {
         GameData gameData = sqlGameDAO.getGame(1);
         ChessGame chessGame = gameData.game();
         chessGame.makeMove(new ChessMove(new ChessPosition(2, 1), new ChessPosition(4, 1), null));
-        sqlGameDAO.updateGame("NA", "NA", new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), chessGame));
+        sqlGameDAO.updateGame(new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), chessGame));
         assertEquals(chessGame, sqlGameDAO.getGame(1).game());
     }
 
@@ -200,6 +202,21 @@ public class DataAccessTest {
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage());
         }
+    }
+
+    @Test
+    void createAuthSuccess() throws DataAccessException {
+        AuthData expected = new AuthData("newToken", "user");
+        sqlAuthDAO.createAuth(new AuthData("newToken", "user"));
+        AuthData actual = sqlAuthDAO.getAuth("newToken");
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void getAuthSuccess() throws DataAccessException {
+        AuthData expected = new AuthData("token", "user");
+        AuthData actual = sqlAuthDAO.getAuth("token");
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -230,6 +247,16 @@ public class DataAccessTest {
 
     @Test
     void updateGameThatDoesNotExist() {
-        assertThrows(BadRequestResponse.class, () -> sqlGameDAO.updateGame("no", "no", new GameData(2, null, null, "uh oh", new ChessGame())));
+        assertThrows(BadRequestResponse.class, () -> sqlGameDAO.updateGame(new GameData(2, null, null, "uh oh", new ChessGame())));
+    }
+
+    @Test
+    void createAuthNullToken() {
+        assertThrows(DataAccessException.class, () -> sqlAuthDAO.createAuth(new AuthData(null, "user")));
+    }
+
+    @Test
+    void getAuthNullToken() throws DataAccessException {
+        assertNull(sqlAuthDAO.getAuth("fake"));
     }
 }

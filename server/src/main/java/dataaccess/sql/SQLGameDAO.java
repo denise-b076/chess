@@ -5,12 +5,11 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import io.javalin.http.BadRequestResponse;
+import io.javalin.http.ForbiddenResponse;
 import model.GameData;
 
 import java.sql.*;
 import java.util.ArrayList;
-
-import static java.sql.Types.NULL;
 
 public class SQLGameDAO implements GameDAO {
 
@@ -20,12 +19,12 @@ public class SQLGameDAO implements GameDAO {
 
     public void clearGames() throws DataAccessException {
         var statement = "TRUNCATE games";
-        executeUpdate(statement);
+        DatabaseManager.executeUpdate(statement);
     }
 
     public int createGame(String gameName) throws DataAccessException {
         var statement = "INSERT INTO games (game_name, white_username, black_username, game_json) VALUES (?, ?, ?, ?)";
-        return executeUpdate(statement, gameName, null, null, new ChessGame());
+        return DatabaseManager.executeUpdate(statement, gameName, null, null, new ChessGame());
     }
 
     public GameData getGame(int gameID) throws DataAccessException {
@@ -41,7 +40,7 @@ public class SQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
         return null;
     }
@@ -64,52 +63,40 @@ public class SQLGameDAO implements GameDAO {
         return result;
     }
 
-    public void updateGame(String playerColor, String username, GameData gameData) throws DataAccessException, BadRequestResponse {
+    public void joinGame(String playerColor, String username, GameData gameData) throws DataAccessException, BadRequestResponse {
         String statement;
         if (playerColor.equals("WHITE")) {
+            whiteUpdate(gameData);
             statement = "UPDATE games SET white_username = ? WHERE game_id = ?";
-            executeUpdate(statement, username, gameData.gameID());
         }
         else if (playerColor.equals("BLACK")) {
+            blackUpdate(gameData);
             statement = "UPDATE games SET black_username = ? WHERE game_id = ?";
-            executeUpdate(statement, username, gameData.gameID());
         }
         else {
-            statement = "UPDATE games SET game_json = ? WHERE game_id = ?";
-            if (getGame(gameData.gameID()) == null) {
-                throw new BadRequestResponse("Error: bad request");
-            }
-            executeUpdate(statement, gameData.game(), gameData.gameID());
+            throw new BadRequestResponse("Error: invalid color");
+        }
+        DatabaseManager.executeUpdate(statement, username, gameData.gameID());
+    }
+
+    public void updateGame(GameData gameData) throws DataAccessException, BadRequestResponse {
+        var statement = "UPDATE games SET game_json = ? WHERE game_id = ?";
+        if (getGame(gameData.gameID()) == null) {
+            throw new BadRequestResponse("Error: bad request");
+        }
+        DatabaseManager.executeUpdate(statement, gameData.game(), gameData.gameID());
+    }
+
+
+    private void whiteUpdate(GameData gameData) throws DataAccessException {
+        if (getGame(gameData.gameID()).whiteUsername() != null) {
+            throw new ForbiddenResponse("Error: already taken");
         }
     }
 
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) {
-                        ps.setString(i + 1, p);
-                    }
-                    else if (param instanceof Integer p) {
-                        ps.setInt(i + 1, p);
-                    }
-                    else if (param instanceof ChessGame p) {
-                        ps.setString(i + 1, new Gson().toJson(p));
-                    }
-                    else if (param == null) {
-                        ps.setNull(i + 1, NULL);
-                    }
-                }
-                ps.executeUpdate();
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error: " + e.getMessage());
+    private void blackUpdate(GameData gameData) throws DataAccessException {
+        if (getGame(gameData.gameID()).blackUsername() != null) {
+            throw new ForbiddenResponse("Error: already taken");
         }
     }
 }
