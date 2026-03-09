@@ -67,7 +67,7 @@ public class Server {
         javalin.stop();
     }
 
-    public final String[] createStatements = {
+    public static final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS user (
             user varchar(256) NOT NULL,

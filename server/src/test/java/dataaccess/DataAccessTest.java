@@ -17,6 +17,7 @@ import model.UserData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.Server;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,33 +35,7 @@ public class DataAccessTest {
 
     @BeforeAll
     static void startDatabase() throws DataAccessException {
-        String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS user (
-            user varchar(256) NOT NULL,
-            password varchar(256) NOT NULL,
-            email varchar(256) NOT NULL,
-            PRIMARY KEY (user)
-            );
-            """,
-            """
-            CREATE TABLE IF NOT EXISTS games (
-            game_id int NOT NULL AUTO_INCREMENT,
-            game_name varchar(256) NOT NULL,
-            white_username varchar(256),
-            black_username varchar(256),
-            game_json TEXT DEFAULT NULL,
-            PRIMARY KEY(game_id)
-            );
-            """,
-            """
-            CREATE TABLE IF NOT EXISTS auth (
-            token varchar(256) NOT NULL,
-            user varchar(256) NOT NULL,
-            PRIMARY KEY (token)
-            );
-            """
-        };
+        String[] createStatements = Server.createStatements;
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             for (String statement : createStatements) {
