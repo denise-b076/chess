@@ -188,6 +188,21 @@ public class DataAccessTest {
     }
 
     @Test
+    void clearAuthsSuccess() throws DataAccessException {
+        sqlAuthDAO.clearAuths();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM auth";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    assertFalse(rs.next());
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
+    }
+
+    @Test
     void createUserNullField() {
         UserData failure = new UserData(null, "oh", "no");
         assertThrows(DataAccessException.class, () -> sqlUserDAO.createUser(failure));
