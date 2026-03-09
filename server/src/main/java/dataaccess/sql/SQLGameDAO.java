@@ -4,6 +4,7 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
+import io.javalin.http.BadRequestResponse;
 import model.GameData;
 
 import java.sql.*;
@@ -63,8 +64,23 @@ public class SQLGameDAO implements GameDAO {
         return result;
     }
 
-    public void updateGame(String playerColor, String username, GameData gameData) throws DataAccessException {
-
+    public void updateGame(String playerColor, String username, GameData gameData) throws DataAccessException, BadRequestResponse {
+        String statement;
+        if (playerColor.equals("WHITE")) {
+            statement = "UPDATE games SET white_username = ? WHERE game_id = ?";
+            executeUpdate(statement, username, gameData.gameID());
+        }
+        else if (playerColor.equals("BLACK")) {
+            statement = "UPDATE games SET black_username = ? WHERE game_id = ?";
+            executeUpdate(statement, username, gameData.gameID());
+        }
+        else {
+            statement = "UPDATE games SET game_json = ? WHERE game_id = ?";
+            if (getGame(gameData.gameID()) == null) {
+                throw new BadRequestResponse("Error: bad request");
+            }
+            executeUpdate(statement, gameData.game(), gameData.gameID());
+        }
     }
 
     private int executeUpdate(String statement, Object... params) throws DataAccessException {

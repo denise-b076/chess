@@ -1,11 +1,15 @@
 package dataaccess;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.sql.DatabaseManager;
 import dataaccess.sql.SQLAuthDAO;
 import dataaccess.sql.SQLGameDAO;
 import dataaccess.sql.SQLUserDAO;
+import io.javalin.http.BadRequestResponse;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeAll;
@@ -175,6 +179,15 @@ public class DataAccessTest {
     }
 
     @Test
+    void updateGameSuccess() throws DataAccessException, InvalidMoveException {
+        GameData gameData = sqlGameDAO.getGame(1);
+        ChessGame chessGame = gameData.game();
+        chessGame.makeMove(new ChessMove(new ChessPosition(2, 1), new ChessPosition(4, 1), null));
+        sqlGameDAO.updateGame("NA", "NA", new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), chessGame));
+        assertEquals(chessGame, sqlGameDAO.getGame(1).game());
+    }
+
+    @Test
     void createUserNullField() {
         UserData failure = new UserData(null, "oh", "no");
         assertThrows(DataAccessException.class, () -> sqlUserDAO.createUser(failure));
@@ -198,5 +211,10 @@ public class DataAccessTest {
     @Test
     void listGamesFailure() {
         //WE NEED SOMETHING HERE. CONSULT WITH THE TA's!!!!!!!!!!!!
+    }
+
+    @Test
+    void updateGameThatDoesNotExist() {
+        assertThrows(BadRequestResponse.class, () -> sqlGameDAO.updateGame("no", "no", new GameData(2, null, null, "uh oh", new ChessGame())));
     }
 }
