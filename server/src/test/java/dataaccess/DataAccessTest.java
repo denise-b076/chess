@@ -10,6 +10,7 @@ import dataaccess.sql.SQLAuthDAO;
 import dataaccess.sql.SQLGameDAO;
 import dataaccess.sql.SQLUserDAO;
 import io.javalin.http.BadRequestResponse;
+import io.javalin.http.ForbiddenResponse;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -190,6 +191,29 @@ public class DataAccessTest {
     }
 
     @Test
+    void joinSuccess() throws DataAccessException {
+        sqlGameDAO.createGame("world");
+        String expected = "banana";
+        sqlGameDAO.joinGame("WHITE", "banana", sqlGameDAO.getGame(2));
+        assertEquals(expected, sqlGameDAO.getGame(2).whiteUsername());
+    }
+
+    @Test
+    void deleteAuthSuccess() throws DataAccessException {
+        sqlAuthDAO.deleteAuth(new AuthData("token", "user"));
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM auth";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    assertFalse(rs.next());
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
+    }
+
+    @Test
     void clearAuthsSuccess() throws DataAccessException {
         sqlAuthDAO.clearAuths();
         try (Connection conn = DatabaseManager.getConnection()) {
@@ -258,5 +282,15 @@ public class DataAccessTest {
     @Test
     void getAuthNullToken() throws DataAccessException {
         assertNull(sqlAuthDAO.getAuth("fake"));
+    }
+
+    @Test
+    void joinGameAlreadyTaken() {
+        assertThrows(ForbiddenResponse.class, () -> sqlGameDAO.joinGame("WHITE", "banana", sqlGameDAO.getGame(1)));
+    }
+
+    @Test
+    void deleteAuthNull() {
+        assertThrows(DataAccessException.class, () -> sqlAuthDAO.deleteAuth(new AuthData(null, null)));
     }
 }

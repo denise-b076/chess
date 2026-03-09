@@ -27,6 +27,9 @@ public class SQLAuthDAO implements AuthDAO {
 
     public void deleteAuth(AuthData authData) throws DataAccessException {
         var statement = "DELETE FROM auth WHERE token = ?";
+        if (authData.authToken() == null) {
+            throw new DataAccessException("Error: authToken is null");
+        }
         DatabaseManager.executeUpdate(statement, authData.authToken());
     }
 
