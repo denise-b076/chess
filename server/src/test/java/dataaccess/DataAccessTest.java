@@ -17,6 +17,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 
 public class DataAccessTest {
@@ -164,6 +165,16 @@ public class DataAccessTest {
     }
 
     @Test
+    void listGamesSuccess() throws DataAccessException {
+        sqlGameDAO.createGame("world");
+        ArrayList<GameData> expected = new ArrayList<>();
+        expected.add(new GameData(1, "white", "black", "hello", new ChessGame()));
+        expected.add(new GameData(2, null, null, "world", new ChessGame()));
+        ArrayList<GameData> actual = sqlGameDAO.listGames();
+        assertEquals(expected, actual);
+    }
+
+    @Test
     void createUserNullField() {
         UserData failure = new UserData(null, "oh", "no");
         assertThrows(DataAccessException.class, () -> sqlUserDAO.createUser(failure));
@@ -182,5 +193,10 @@ public class DataAccessTest {
     @Test
     void getGameNotExist() throws DataAccessException {
         assertNull(sqlGameDAO.getGame(2));
+    }
+
+    @Test
+    void listGamesFailure() {
+        //WE NEED SOMETHING HERE. CONSULT WITH THE TA's!!!!!!!!!!!!
     }
 }
