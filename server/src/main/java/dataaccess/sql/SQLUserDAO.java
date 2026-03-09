@@ -33,7 +33,6 @@ public class SQLUserDAO implements UserDAO {
                 ps.setString(1, username);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        System.out.print(rs.getString("user") + " " + rs.getString("password"));
                         return new UserData(rs.getString("user"), rs.getString("password"), rs.getString("email"));
                     }
                 }

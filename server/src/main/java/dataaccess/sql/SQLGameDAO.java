@@ -1,5 +1,7 @@
 package dataaccess.sql;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.GameData;
@@ -21,10 +23,25 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public int createGame(String gameName) throws DataAccessException {
-        return 0;
+        var statement = "INSERT INTO games (game_name, white_username, black_username, game_json) VALUES (?, ?, ?, ?)";
+        return executeUpdate(statement, gameName, null, null, new ChessGame());
     }
 
     public GameData getGame(int gameID) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT game_id, game_name, white_username, black_username, game_json FROM games WHERE game_id=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, gameID);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        ChessGame game = new Gson().fromJson(rs.getString("game_json"), ChessGame.class);
+                        return new GameData(rs.getInt("game_id"), rs.getString("white_username"), rs.getString("black_username"), rs.getString("game_name"), game);
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
         return null;
     }
 
@@ -46,6 +63,9 @@ public class SQLGameDAO implements GameDAO {
                     }
                     else if (param instanceof Integer p) {
                         ps.setInt(i + 1, p);
+                    }
+                    else if (param instanceof ChessGame p) {
+                        ps.setString(i + 1, new Gson().toJson(p));
                     }
                     else if (param == null) {
                         ps.setNull(i + 1, NULL);
