@@ -1,5 +1,7 @@
 package dataaccess;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import dataaccess.sql.DatabaseManager;
 import dataaccess.sql.SQLAuthDAO;
 import dataaccess.sql.SQLGameDAO;
@@ -85,11 +87,18 @@ public class DataAccessTest {
                 """,
                 """
                 INSERT INTO auth (token, user) VALUES ('token', 'user');
+                """,
+                """
+                INSERT INTO games (game_name, white_username, black_username, game_json) VALUES ('hello', 'white', 'black', ?);
                 """
         };
         try (var conn = DatabaseManager.getConnection()) {
             for (String statement : truncateStatements) {
                 try(var preparedStatement = conn.prepareStatement(statement)) {
+                    if (statement.equals("INSERT INTO games (game_name, white_username, black_username, game_json) VALUES ('hello', 'white', 'black', ?);\n")) {
+                        String game_json = new Gson().toJson(new ChessGame());
+                        preparedStatement.setString(1, game_json);
+                    }
                     preparedStatement.executeUpdate();
                 }
             }
@@ -111,10 +120,25 @@ public class DataAccessTest {
     }
 
     @Test
-    void clearUsersSuccess() throws DataAccessException{
+    void clearUsersSuccess() throws DataAccessException {
         sqlUserDAO.clearUsers();
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM user";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    assertFalse(rs.next());
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
+    }
+
+    @Test
+    void clearGamesSuccess() throws DataAccessException {
+        sqlGameDAO.clearGames();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM games";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     assertFalse(rs.next());
