@@ -34,8 +34,11 @@ public class SQLGameDAO implements GameDAO {
                 ps.setInt(1, gameID);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
+                        String whiteUser = rs.getString("white_username");
+                        String blackUser = rs.getString("black_username");
+                        String gameName = rs.getString("game_name");
                         ChessGame game = new Gson().fromJson(rs.getString("game_json"), ChessGame.class);
-                        return new GameData(rs.getInt("game_id"), rs.getString("white_username"), rs.getString("black_username"), rs.getString("game_name"), game);
+                        return new GameData(gameID, whiteUser, blackUser, gameName, game);
                     }
                 }
             }
@@ -52,8 +55,12 @@ public class SQLGameDAO implements GameDAO {
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
+                        int gameID = rs.getInt("game_id");
+                        String whiteUser = rs.getString("white_username");
+                        String blackUser = rs.getString("black_username");
+                        String gameName = rs.getString("game_name");
                         ChessGame game = new Gson().fromJson(rs.getString("game_json"), ChessGame.class);
-                        result.add(new GameData(rs.getInt("game_id"), rs.getString("white_username"), rs.getString("black_username"), rs.getString("game_name"), game));
+                        result.add(new GameData(gameID, whiteUser, blackUser, gameName, game));
                     }
                 }
             }

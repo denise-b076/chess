@@ -61,19 +61,9 @@ public class DatabaseManager {
     static int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    switch (param) {
-                        case String p -> ps.setString(i + 1, p);
-                        case Integer p -> ps.setInt(i + 1, p);
-                        case ChessGame p -> ps.setString(i + 1, new Gson().toJson(p));
-                        case null -> ps.setNull(i + 1, NULL);
-                        default -> {
-                        }
-                    }
-                }
-                ps.executeUpdate();
-                ResultSet rs = ps.getGeneratedKeys();
+                var updatedPS = setPreparedStatementValues(ps, params);
+                updatedPS.executeUpdate();
+                ResultSet rs = updatedPS.getGeneratedKeys();
                 if (rs.next()) {
                     return rs.getInt(1);
                 }
@@ -82,6 +72,21 @@ public class DatabaseManager {
         } catch (SQLException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }
+    }
+
+    static private PreparedStatement setPreparedStatementValues(PreparedStatement ps, Object... params) throws SQLException{
+        for (int i = 0; i < params.length; i++) {
+            Object param = params[i];
+            switch (param) {
+                case String p -> ps.setString(i + 1, p);
+                case Integer p -> ps.setInt(i + 1, p);
+                case ChessGame p -> ps.setString(i + 1, new Gson().toJson(p));
+                case null -> ps.setNull(i + 1, NULL);
+                default -> {
+                }
+            }
+        }
+        return ps;
     }
 
     private static void loadPropertiesFromResources() {

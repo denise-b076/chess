@@ -104,9 +104,9 @@ public class DataAccessTest {
         try (var conn = DatabaseManager.getConnection()) {
             for (String statement : truncateStatements) {
                 try(var preparedStatement = conn.prepareStatement(statement)) {
-                    if (statement.equals("INSERT INTO games (game_name, white_username, black_username, game_json) VALUES ('hello', 'white', 'black', ?);\n")) {
-                        String game_json = new Gson().toJson(new ChessGame());
-                        preparedStatement.setString(1, game_json);
+                    if (statement.equals(truncateStatements[6])) {
+                        String gameJson = new Gson().toJson(new ChessGame());
+                        preparedStatement.setString(1, gameJson);
                     }
                     preparedStatement.executeUpdate();
                 }
@@ -160,8 +160,8 @@ public class DataAccessTest {
 
     @Test
     void createGameSuccess() throws DataAccessException {
-        int game_id = sqlGameDAO.createGame("testing");
-        assertEquals(2, game_id);
+        int gameID = sqlGameDAO.createGame("testing");
+        assertEquals(2, gameID);
     }
 
     @Test
@@ -201,26 +201,21 @@ public class DataAccessTest {
     @Test
     void deleteAuthSuccess() throws DataAccessException {
         sqlAuthDAO.deleteAuth(new AuthData("token", "user"));
-        try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT * FROM auth";
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    assertFalse(rs.next());
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException(ex.getMessage());
-        }
+        assertFalse(checkAuthEmpty());
     }
 
     @Test
     void clearAuthsSuccess() throws DataAccessException {
         sqlAuthDAO.clearAuths();
+        assertFalse(checkAuthEmpty());
+    }
+
+    boolean checkAuthEmpty() throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM auth";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
-                    assertFalse(rs.next());
+                    return (rs.next());
                 }
             }
         } catch (SQLException ex) {
@@ -265,8 +260,9 @@ public class DataAccessTest {
     }
 
     @Test
-    void listGamesFailure() {
-        //WE NEED SOMETHING HERE. CONSULT WITH THE TA's!!!!!!!!!!!!
+    void listGamesEmpty() throws DataAccessException {
+        sqlGameDAO.clearGames();
+        assertEquals(new ArrayList<>(), sqlGameDAO.listGames());
     }
 
     @Test
