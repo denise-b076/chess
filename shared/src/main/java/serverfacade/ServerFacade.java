@@ -18,23 +18,32 @@ public class ServerFacade {
     }
 
     public AuthData registerUser(UserData userData) throws Exception {
-        var request = buildRequest("POST", "/user", userData);
+        var request = buildRequest("POST", "/user", userData, null);
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
     }
 
     public AuthData loginUser(UserData userData) throws Exception {
-        var request = buildRequest("POST", "/session", userData);
+        var request = buildRequest("POST", "/session", userData, null);
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
     }
 
-    private HttpRequest buildRequest(String method, String path, Object body) {
+    public void logoutUser(String token) throws Exception {
+        var request = buildRequest("DELETE", "/session", null, token);
+        var response = sendRequest(request);
+        handleResponse(response, null);
+    }
+
+    private HttpRequest buildRequest(String method, String path, Object body, String token) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(url + path))
                 .method(method, makeRequestBody(body));
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
+        }
+        if (token != null) {
+            request.setHeader("authorization", token);
         }
         return request.build();
     }
