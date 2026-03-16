@@ -1,9 +1,10 @@
 package client;
 
 import dataaccess.DataAccessException;
-import model.GameName;
-import model.UserData;
 import org.junit.jupiter.api.*;
+import request.CreateRequest;
+import request.LoginRequest;
+import request.RegisterRequest;
 import server.Server;
 import server.ServerFacade;
 
@@ -36,39 +37,39 @@ public class ServerFacadeTests {
 
     @Test
     public void registerTest() throws Exception {
-        var authData = facade.registerUser(new UserData("player1", "password", "p1@email.com"));
+        var authData = facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com"));
         assertTrue(authData.authToken().length() > 10);
     }
 
     @Test
     void loginTest() throws Exception {
-        facade.registerUser(new UserData("player1", "password", "p1@email.com"));
-        var authData = facade.loginUser(new UserData("player1", "password", null));
+        facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com"));
+        var authData = facade.loginUser(new LoginRequest("player1", "password"));
         assertTrue(authData.authToken().length() > 10);
     }
 
     @Test
     void logoutTest() throws Exception {
-        var authData = facade.registerUser(new UserData("player1", "password", "p1@email.com"));
+        var authData = facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com"));
         assertDoesNotThrow(() -> facade.logoutUser(authData.authToken()));
     }
 
     @Test
     void createGameTest() throws Exception {
-        var authData = facade.registerUser(new UserData("player1", "password", "p1@email.com"));
-        var gameID = facade.createGame(new GameName("newGame"), authData.authToken());
+        var authData = facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com"));
+        var gameID = facade.createGame(new CreateRequest("newGame"), authData.authToken());
         assertEquals(1, gameID.gameID());
     }
 
     @Test
     void registerAlreadyExists() throws Exception {
-        facade.registerUser(new UserData("player1", "password", "p1@email.com"));
-        assertThrows(Exception.class, () -> facade.registerUser(new UserData("player1", "password", "p1@email.com")));
+        facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com"));
+        assertThrows(Exception.class, () -> facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com")));
     }
 
     @Test
     void loginNonExistent() {
-        assertThrows(Exception.class, () -> facade.loginUser(new UserData("not", "here", null)));
+        assertThrows(Exception.class, () -> facade.loginUser(new LoginRequest("player1", "password")));
     }
 
     @Test
@@ -78,7 +79,7 @@ public class ServerFacadeTests {
 
     @Test
     void createGameUnauthorized() {
-        assertThrows(Exception.class, () -> facade.createGame(new GameName("newGame"), "bad"));
+        assertThrows(Exception.class, () -> facade.createGame(new CreateRequest("newGame"), "bad"));
     }
 
 }

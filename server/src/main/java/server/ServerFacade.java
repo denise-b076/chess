@@ -1,10 +1,12 @@
 package server;
 
 import com.google.gson.Gson;
-import model.AuthData;
-import model.GameID;
-import model.GameName;
-import model.UserData;
+import request.CreateRequest;
+import request.LoginRequest;
+import request.RegisterRequest;
+import result.CreateResult;
+import result.LoginResult;
+import result.RegisterResult;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -19,16 +21,16 @@ public class ServerFacade {
         this.url = "http://localhost:" + port;
     }
 
-    public AuthData registerUser(UserData userData) throws Exception {
-        var request = buildRequest("POST", "/user", userData, null);
+    public RegisterResult registerUser(RegisterRequest registerRequest) throws Exception {
+        var request = buildRequest("POST", "/user", registerRequest, null);
         var response = sendRequest(request);
-        return handleResponse(response, AuthData.class);
+        return handleResponse(response, RegisterResult.class);
     }
 
-    public AuthData loginUser(UserData userData) throws Exception {
-        var request = buildRequest("POST", "/session", userData, null);
+    public LoginResult loginUser(LoginRequest loginRequest) throws Exception {
+        var request = buildRequest("POST", "/session", loginRequest, null);
         var response = sendRequest(request);
-        return handleResponse(response, AuthData.class);
+        return handleResponse(response, LoginResult.class);
     }
 
     public void logoutUser(String token) throws Exception {
@@ -37,10 +39,10 @@ public class ServerFacade {
         handleResponse(response, null);
     }
 
-    public GameID createGame(GameName gameName, String token) throws Exception {
-        var request = buildRequest("POST", "/game", gameName, token);
+    public CreateResult createGame(CreateRequest createRequest, String token) throws Exception {
+        var request = buildRequest("POST", "/game", createRequest, token);
         var response = sendRequest(request);
-        return handleResponse(response, GameID.class);
+        return handleResponse(response, CreateResult.class);
     }
 
     private HttpRequest buildRequest(String method, String path, Object body, String token) {
