@@ -3,6 +3,7 @@ package client;
 import dataaccess.DataAccessException;
 import org.junit.jupiter.api.*;
 import request.CreateRequest;
+import request.JoinRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import server.Server;
@@ -62,6 +63,13 @@ public class ServerFacadeTests {
     }
 
     @Test
+    void joinGameTest() throws Exception {
+        var authData = facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com"));
+        var gameID = facade.createGame(new CreateRequest("newGame"), authData.authToken());
+        assertDoesNotThrow(() -> facade.joinGame(new JoinRequest("WHITE", gameID.gameID()), authData.authToken()));
+    }
+
+    @Test
     void registerAlreadyExists() throws Exception {
         facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com"));
         assertThrows(Exception.class, () -> facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com")));
@@ -80,6 +88,15 @@ public class ServerFacadeTests {
     @Test
     void createGameUnauthorized() {
         assertThrows(Exception.class, () -> facade.createGame(new CreateRequest("newGame"), "bad"));
+    }
+
+    @Test
+    void joinGameColorTaken() throws Exception {
+        var authData = facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com"));
+        var authData2 = facade.registerUser(new RegisterRequest("thief", "thief", "thief@thief.com"));
+        var gameID = facade.createGame(new CreateRequest("newGame"), authData.authToken());
+        facade.joinGame(new JoinRequest("WHITE", gameID.gameID()), authData.authToken());
+        assertThrows(Exception.class, () -> facade.joinGame(new JoinRequest("WHITE", gameID.gameID()), authData2.authToken()));
     }
 
 }

@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import request.CreateRequest;
+import request.JoinRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.CreateResult;
@@ -43,6 +44,12 @@ public class ServerFacade {
         var request = buildRequest("POST", "/game", createRequest, token);
         var response = sendRequest(request);
         return handleResponse(response, CreateResult.class);
+    }
+
+    public void joinGame(JoinRequest joinRequest, String token) throws Exception {
+        var request = buildRequest("PUT", "/game", joinRequest, token);
+        var response = sendRequest(request);
+        handleResponse(response, null);
     }
 
     private HttpRequest buildRequest(String method, String path, Object body, String token) {
