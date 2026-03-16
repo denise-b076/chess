@@ -1,10 +1,11 @@
 package client;
 
 import dataaccess.DataAccessException;
+import model.GameName;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
-import serverfacade.ServerFacade;
+import server.ServerFacade;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,6 +54,13 @@ public class ServerFacadeTests {
     }
 
     @Test
+    void createGameTest() throws Exception {
+        var authData = facade.registerUser(new UserData("player1", "password", "p1@email.com"));
+        var gameID = facade.createGame(new GameName("newGame"), authData.authToken());
+        assertEquals(1, gameID.gameID());
+    }
+
+    @Test
     void registerAlreadyExists() throws Exception {
         facade.registerUser(new UserData("player1", "password", "p1@email.com"));
         assertThrows(Exception.class, () -> facade.registerUser(new UserData("player1", "password", "p1@email.com")));
@@ -66,6 +74,11 @@ public class ServerFacadeTests {
     @Test
     void logoutNonExistent() {
         assertThrows(Exception.class, () -> facade.logoutUser("bad"));
+    }
+
+    @Test
+    void createGameUnauthorized() {
+        assertThrows(Exception.class, () -> facade.createGame(new GameName("newGame"), "bad"));
     }
 
 }

@@ -1,7 +1,9 @@
-package serverfacade;
+package server;
 
 import com.google.gson.Gson;
 import model.AuthData;
+import model.GameID;
+import model.GameName;
 import model.UserData;
 
 import java.net.URI;
@@ -33,6 +35,12 @@ public class ServerFacade {
         var request = buildRequest("DELETE", "/session", null, token);
         var response = sendRequest(request);
         handleResponse(response, null);
+    }
+
+    public GameID createGame(GameName gameName, String token) throws Exception {
+        var request = buildRequest("POST", "/game", gameName, token);
+        var response = sendRequest(request);
+        return handleResponse(response, GameID.class);
     }
 
     private HttpRequest buildRequest(String method, String path, Object body, String token) {
