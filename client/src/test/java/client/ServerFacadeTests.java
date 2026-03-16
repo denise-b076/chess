@@ -40,9 +40,21 @@ public class ServerFacadeTests {
     }
 
     @Test
+    void loginTest() throws Exception {
+        facade.registerUser(new UserData("player1", "password", "p1@email.com"));
+        var authData = facade.loginUser(new UserData("player1", "password", null));
+        assertTrue(authData.authToken().length() > 10);
+    }
+
+    @Test
     void registerAlreadyExists() throws Exception {
         facade.registerUser(new UserData("player1", "password", "p1@email.com"));
         assertThrows(Exception.class, () -> facade.registerUser(new UserData("player1", "password", "p1@email.com")));
+    }
+
+    @Test
+    void loginNonExistent() {
+        assertThrows(Exception.class, () -> facade.loginUser(new UserData("not", "here", null)));
     }
 
 }
