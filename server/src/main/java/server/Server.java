@@ -107,4 +107,8 @@ public class Server {
             throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
         }
     }
+
+    public void clearDatabase() throws DataAccessException {
+        clearService.clear();
+    }
 }
