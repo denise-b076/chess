@@ -6,6 +6,7 @@ import request.JoinRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.CreateResult;
+import result.ListResult;
 import result.LoginResult;
 import result.RegisterResult;
 
@@ -50,6 +51,12 @@ public class ServerFacade {
         var request = buildRequest("PUT", "/game", joinRequest, token);
         var response = sendRequest(request);
         handleResponse(response, null);
+    }
+
+    public ListResult listGames(String token) throws Exception {
+        var request = buildRequest("GET", "/game", null, token);
+        var response = sendRequest(request);
+        return handleResponse(response, ListResult.class);
     }
 
     private HttpRequest buildRequest(String method, String path, Object body, String token) {

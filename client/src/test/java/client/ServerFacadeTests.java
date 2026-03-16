@@ -1,11 +1,12 @@
 package client;
 
-import dataaccess.DataAccessException;
 import org.junit.jupiter.api.*;
 import request.CreateRequest;
 import request.JoinRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
+import result.CreateResult;
+import result.RegisterResult;
 import server.Server;
 import server.ServerFacade;
 
@@ -16,6 +17,8 @@ public class ServerFacadeTests {
 
     private static Server server;
     static ServerFacade facade;
+    private RegisterResult authData;
+    private CreateResult createResult;
 
     @BeforeAll
     public static void init() {
@@ -31,53 +34,55 @@ public class ServerFacadeTests {
     }
 
     @BeforeEach
-    void clear() throws DataAccessException {
+    void clearAndReset() throws Exception {
         server.clearDatabase();
+        authData = facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com"));
+        createResult = facade.createGame(new CreateRequest("newGame"), authData.authToken());
+        facade.joinGame(new JoinRequest("WHITE", createResult.gameID()), authData.authToken());
     }
 
 
     @Test
     public void registerTest() throws Exception {
-        var authData = facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com"));
+        var authData = facade.registerUser(new RegisterRequest("player2", "password", "p1@email.com"));
         assertTrue(authData.authToken().length() > 10);
     }
 
     @Test
     void loginTest() throws Exception {
-        facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com"));
         var authData = facade.loginUser(new LoginRequest("player1", "password"));
         assertTrue(authData.authToken().length() > 10);
     }
 
     @Test
-    void logoutTest() throws Exception {
-        var authData = facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com"));
+    void logoutTest() {
         assertDoesNotThrow(() -> facade.logoutUser(authData.authToken()));
     }
 
     @Test
     void createGameTest() throws Exception {
-        var authData = facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com"));
         var gameID = facade.createGame(new CreateRequest("newGame"), authData.authToken());
-        assertEquals(1, gameID.gameID());
+        assertEquals(2, gameID.gameID());
     }
 
     @Test
-    void joinGameTest() throws Exception {
-        var authData = facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com"));
-        var gameID = facade.createGame(new CreateRequest("newGame"), authData.authToken());
-        assertDoesNotThrow(() -> facade.joinGame(new JoinRequest("WHITE", gameID.gameID()), authData.authToken()));
+    void joinGameTest() {
+        assertDoesNotThrow(() -> facade.joinGame(new JoinRequest("BLACK", createResult.gameID()), authData.authToken()));
     }
 
     @Test
-    void registerAlreadyExists() throws Exception {
-        facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com"));
+    void listGamesTest() throws Exception {
+        assertEquals(1, facade.listGames(authData.authToken()).games().size());
+    }
+
+    @Test
+    void registerAlreadyExists() {
         assertThrows(Exception.class, () -> facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com")));
     }
 
     @Test
     void loginNonExistent() {
-        assertThrows(Exception.class, () -> facade.loginUser(new LoginRequest("player1", "password")));
+        assertThrows(Exception.class, () -> facade.loginUser(new LoginRequest("player2", "password")));
     }
 
     @Test
@@ -92,11 +97,13 @@ public class ServerFacadeTests {
 
     @Test
     void joinGameColorTaken() throws Exception {
-        var authData = facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com"));
         var authData2 = facade.registerUser(new RegisterRequest("thief", "thief", "thief@thief.com"));
-        var gameID = facade.createGame(new CreateRequest("newGame"), authData.authToken());
-        facade.joinGame(new JoinRequest("WHITE", gameID.gameID()), authData.authToken());
-        assertThrows(Exception.class, () -> facade.joinGame(new JoinRequest("WHITE", gameID.gameID()), authData2.authToken()));
+        assertThrows(Exception.class, () -> facade.joinGame(new JoinRequest("WHITE", createResult.gameID()), authData2.authToken()));
+    }
+
+    @Test
+    void listGamesUnauthorized() {
+        assertThrows(Exception.class, () -> facade.listGames("bad"));
     }
 
 }
