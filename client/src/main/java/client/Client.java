@@ -43,8 +43,28 @@ public class Client {
     public String eval(String input) {
         return switch (input) {
             case "quit" -> SET_TEXT_COLOR_YELLOW + "See you later!";
-            default -> "You just input: " + input;
+            default -> help();
         };
+    }
+
+    private String help() {
+        if (authToken == null) {
+            return """
+                   register <USERNAME> <PASSWORD> <EMAIL> - to create an account
+                   login <USERNAME> <PASSWORD> - to play chess
+                   quit - playing chess
+                   help - with possible commands
+                   """;
+        }
+        return """
+               create <NAME> - a game
+               list - games
+               join <ID> - a game
+               observe <ID> - a game
+               logout - when you are done
+               quit - playing chess
+               help - with possible commands
+               """;
     }
 
 }
