@@ -1,7 +1,10 @@
 package client;
 
+import request.RegisterRequest;
+import result.RegisterResult;
 import server.ServerFacade;
 
+import java.util.Arrays;
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
@@ -10,6 +13,7 @@ public class Client {
     private String visitorName = null;
     private final ServerFacade server;
     private String authToken = null;
+    private final String exitString = SET_TEXT_COLOR_YELLOW + "See you later!";
 
     public Client(int port) {
         server = new ServerFacade(port);
@@ -20,7 +24,7 @@ public class Client {
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("quit")) {
+        while (!result.equals(exitString)) {
             printPrompt();
             String line = scanner.nextLine();
 
@@ -41,10 +45,30 @@ public class Client {
     }
 
     public String eval(String input) {
-        return switch (input) {
-            case "quit" -> SET_TEXT_COLOR_YELLOW + "See you later!";
-            default -> help();
-        };
+        try {
+            String[] tokens = input.toLowerCase().split(" ");
+            String cmd = (tokens.length > 0) ? tokens[0] : "help";
+            String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            return switch (cmd) {
+                case "register" -> register(params);
+                case "quit" -> exitString;
+                default -> help();
+            };
+        }
+        catch (Exception e) {
+            return e.getMessage();
+        }
+    }
+
+    private String register(String... params) throws Exception {
+        if (params.length == 3) {
+            RegisterRequest request = new RegisterRequest(params[0], params[1], params[2]);
+            RegisterResult result = server.registerUser(request);
+            visitorName = result.username();
+            authToken = result.authToken();
+            return String.format("You're signed in as: " + visitorName);
+        }
+        throw new Exception("Expected: <USERNAME> <PASSWORD> <EMAIL>");
     }
 
     private String help() {

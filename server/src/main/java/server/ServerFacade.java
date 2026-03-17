@@ -14,6 +14,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashMap;
 
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
@@ -94,7 +95,9 @@ public class ServerFacade {
         if (!isSuccessful(status)) {
             var body = response.body();
             if (body != null) {
-                throw new Exception(new Gson().fromJson(body, String.class));
+                var map = new Gson().fromJson(body, HashMap.class);
+                String message = map.get("message").toString();
+                throw new Exception(message);
             }
             throw new Exception("other failure: " + status);
         }
