@@ -52,12 +52,21 @@ public class Client {
             String[] tokens = input.toLowerCase().split(" ");
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
-                case "register" -> register(params);
-                case "login" -> login(params);
-                case "quit" -> exitString;
-                default -> help();
-            };
+            if (authToken == null) {
+                return switch (cmd) {
+                    case "register" -> register(params);
+                    case "login" -> login(params);
+                    case "quit" -> exitString;
+                    default -> help();
+                };
+            }
+            else {
+                return switch(cmd) {
+                    case "logout" -> logout();
+                    case "quit" -> exitString;
+                    default -> help();
+                };
+            }
         }
         catch (Exception e) {
             return e.getMessage();
@@ -84,6 +93,13 @@ public class Client {
             return String.format("You're signed in as: " + visitorName);
         }
         throw new Exception("Expected: <USERNAME> <PASSWORD>");
+    }
+
+    private String logout() throws Exception {
+        server.logoutUser(authToken);
+        visitorName = null;
+        authToken = null;
+        return "you've signed out";
     }
 
     private String help() {
