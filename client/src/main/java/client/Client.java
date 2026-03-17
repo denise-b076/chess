@@ -1,6 +1,8 @@
 package client;
 
+import request.LoginRequest;
 import request.RegisterRequest;
+import result.LoginResult;
 import result.RegisterResult;
 import server.ServerFacade;
 
@@ -41,7 +43,8 @@ public class Client {
     }
 
     private void printPrompt() {
-        System.out.println("\n" + RESET_TEXT_COLOR + ">>>" + SET_TEXT_COLOR_GREEN);
+        String authorized = authToken != null ? "[" + visitorName + "]" : "[LOGGED_OUT]";
+        System.out.println("\n" + RESET_TEXT_COLOR + authorized + " >>>" + SET_TEXT_COLOR_GREEN);
     }
 
     public String eval(String input) {
@@ -51,6 +54,7 @@ public class Client {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "register" -> register(params);
+                case "login" -> login(params);
                 case "quit" -> exitString;
                 default -> help();
             };
@@ -69,6 +73,17 @@ public class Client {
             return String.format("You're signed in as: " + visitorName);
         }
         throw new Exception("Expected: <USERNAME> <PASSWORD> <EMAIL>");
+    }
+
+    private String login(String... params) throws Exception {
+        if (params.length == 2) {
+            LoginRequest request = new LoginRequest(params[0], params[1]);
+            LoginResult result = server.loginUser(request);
+            visitorName = result.username();
+            authToken = result.authToken();
+            return String.format("You're signed in as: " + visitorName);
+        }
+        throw new Exception("Expected: <USERNAME> <PASSWORD>");
     }
 
     private String help() {
