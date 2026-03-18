@@ -1,5 +1,6 @@
 package client;
 
+import request.CreateRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.LoginResult;
@@ -63,6 +64,7 @@ public class Client {
             else {
                 return switch(cmd) {
                     case "logout" -> logout();
+                    case "create" -> create(params);
                     case "quit" -> exitString;
                     default -> help();
                 };
@@ -102,6 +104,15 @@ public class Client {
         return "you've signed out";
     }
 
+    private String create(String... params) throws Exception {
+        if (params.length == 1) {
+            CreateRequest request = new CreateRequest(params[0]);
+            server.createGame(request, authToken);
+            return String.format("New game created: " + request.gameName());
+        }
+        throw new Exception("Expected: <NAME>");
+    }
+
     private String help() {
         if (authToken == null) {
             return """
@@ -114,7 +125,7 @@ public class Client {
         return """
                create <NAME> - a game
                list - games
-               join <ID> - a game
+               join <ID> [WHITE|BLACK] - a game
                observe <ID> - a game
                logout - when you are done
                quit - playing chess
