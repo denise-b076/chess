@@ -73,6 +73,7 @@ public class Client {
                     case "create" -> create(params);
                     case "list" -> list();
                     case "join" -> join(params);
+                    case "observe" -> observe(params);
                     case "quit" -> exitString;
                     default -> help();
                 };
@@ -150,6 +151,20 @@ public class Client {
             }
         }
         throw new Exception("Expected: <ID> [WHITE|BLACK]");
+    }
+
+    private String observe(String... params) throws Exception {
+        if (params.length == 1) {
+            try {
+                int requestedID = Integer.parseInt(params[0]);
+                GameData requestedGame = games.get(requestedID);
+                return ("game board would be here!");
+            }
+            catch (NumberFormatException e) {
+                throw new Exception("Expected: <ID>");
+            }
+        }
+        throw new Exception("Expected: <ID>");
     }
 
     private String help() {
