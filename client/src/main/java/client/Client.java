@@ -1,13 +1,17 @@
 package client;
 
+import model.GameData;
 import request.CreateRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
+import result.ListResult;
 import result.LoginResult;
 import result.RegisterResult;
 import server.ServerFacade;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
@@ -17,6 +21,7 @@ public class Client {
     private final ServerFacade server;
     private String authToken = null;
     private final String exitString = SET_TEXT_COLOR_YELLOW + "See you later!";
+    private HashMap<Integer, GameData> games = new HashMap<>();
 
     public Client(int port) {
         server = new ServerFacade(port);
@@ -65,6 +70,7 @@ public class Client {
                 return switch(cmd) {
                     case "logout" -> logout();
                     case "create" -> create(params);
+                    case "list" -> list();
                     case "quit" -> exitString;
                     default -> help();
                 };
@@ -111,6 +117,21 @@ public class Client {
             return String.format("New game created: " + request.gameName());
         }
         throw new Exception("Expected: <NAME>");
+    }
+
+    private String list() throws Exception {
+        games.clear();
+        ListResult result = server.listGames(authToken);
+        StringBuilder listString = new StringBuilder();
+        ArrayList<GameData> listOfGames = result.games();
+        for (int i = 1; i <= listOfGames.size(); i++) {
+            GameData currGame = listOfGames.get(i - 1);
+            String currWhite = currGame.whiteUsername() == null ? "<NONE>" : currGame.whiteUsername();
+            String currBlack = currGame.blackUsername() == null ? "<NONE>" : currGame.blackUsername();
+            listString.append(String.format(i + " - name: " + currGame.gameName() + ", white: " + currWhite + ", black: " + currBlack + "\n"));
+            games.put(i, listOfGames.get(i - 1));
+        }
+        return listString.toString();
     }
 
     private String help() {
