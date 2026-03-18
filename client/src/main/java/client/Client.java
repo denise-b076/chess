@@ -2,6 +2,7 @@ package client;
 
 import model.GameData;
 import request.CreateRequest;
+import request.JoinRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.ListResult;
@@ -21,7 +22,7 @@ public class Client {
     private final ServerFacade server;
     private String authToken = null;
     private final String exitString = SET_TEXT_COLOR_YELLOW + "See you later!";
-    private HashMap<Integer, GameData> games = new HashMap<>();
+    private final HashMap<Integer, GameData> games = new HashMap<>();
 
     public Client(int port) {
         server = new ServerFacade(port);
@@ -71,6 +72,7 @@ public class Client {
                     case "logout" -> logout();
                     case "create" -> create(params);
                     case "list" -> list();
+                    case "join" -> join(params);
                     case "quit" -> exitString;
                     default -> help();
                 };
@@ -132,6 +134,22 @@ public class Client {
             games.put(i, listOfGames.get(i - 1));
         }
         return listString.toString();
+    }
+
+    private String join(String... params) throws Exception {
+        if (params.length == 2) {
+            try {
+                int requestedID = Integer.parseInt(params[0]);
+                GameData requestedGame = games.get(requestedID);
+                JoinRequest request = new JoinRequest(params[1].toUpperCase(), requestedGame.gameID());
+                server.joinGame(request, authToken);
+                return ("game board would be here!");
+            }
+            catch (NumberFormatException e) {
+                throw new Exception("Expected: <ID> [WHITE|BLACK]");
+            }
+        }
+        throw new Exception("Expected: <ID> [WHITE|BLACK]");
     }
 
     private String help() {
