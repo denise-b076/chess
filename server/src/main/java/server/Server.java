@@ -108,7 +108,4 @@ public class Server {
         }
     }
 
-    public void clearDatabase() throws DataAccessException {
-        clearService.clear();
-    }
 }

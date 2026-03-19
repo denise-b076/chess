@@ -35,7 +35,7 @@ public class ServerFacadeTests {
 
     @BeforeEach
     void clearAndReset() throws Exception {
-        server.clearDatabase();
+        facade.clear();
         authData = facade.registerUser(new RegisterRequest("player1", "password", "p1@email.com"));
         createResult = facade.createGame(new CreateRequest("newGame"), authData.authToken());
         facade.joinGame(new JoinRequest("WHITE", createResult.gameID()), authData.authToken());
@@ -73,6 +73,11 @@ public class ServerFacadeTests {
     @Test
     void listGamesTest() throws Exception {
         assertEquals(1, facade.listGames(authData.authToken()).games().size());
+    }
+
+    @Test
+    void clearTest() {
+        assertDoesNotThrow(() -> facade.clear());
     }
 
     @Test
