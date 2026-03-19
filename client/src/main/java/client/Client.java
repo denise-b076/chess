@@ -32,7 +32,7 @@ public class Client {
     }
 
     public void run() {
-        System.out.println("Welcome to Denise's 240 chess! Type 'help' to get started!");
+        System.out.println(SET_TEXT_COLOR_YELLOW + "Welcome to Denise's 240 chess! Type 'help' to get started!");
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -54,7 +54,8 @@ public class Client {
 
     private void printPrompt() {
         String authorized = authToken != null ? "[" + visitorName + "]" : "[LOGGED_OUT]";
-        System.out.println("\n" + RESET_TEXT_COLOR + authorized + " >>>" + SET_TEXT_COLOR_GREEN);
+        String line = "------------\n";
+        System.out.println(RESET_TEXT_COLOR + "\n" + line + authorized + " >>>" + SET_TEXT_COLOR_GREEN);
     }
 
     public String eval(String input) {
@@ -83,7 +84,7 @@ public class Client {
             }
         }
         catch (Exception e) {
-            return e.getMessage();
+            return e.getMessage() + "\n";
         }
     }
 
@@ -93,7 +94,7 @@ public class Client {
             RegisterResult result = server.registerUser(request);
             visitorName = result.username();
             authToken = result.authToken();
-            return String.format("You're signed in as: " + visitorName);
+            return String.format("You're signed in as: " + visitorName + "\n");
         }
         throw new Exception("Expected: <USERNAME> <PASSWORD> <EMAIL>");
     }
@@ -104,7 +105,7 @@ public class Client {
             LoginResult result = server.loginUser(request);
             visitorName = result.username();
             authToken = result.authToken();
-            return String.format("You're signed in as: " + visitorName);
+            return String.format("You're signed in as: " + visitorName + "\n");
         }
         throw new Exception("Expected: <USERNAME> <PASSWORD>");
     }
@@ -113,14 +114,14 @@ public class Client {
         server.logoutUser(authToken);
         visitorName = null;
         authToken = null;
-        return "you've signed out";
+        return "you've signed out\n";
     }
 
     private String create(String... params) throws Exception {
         if (params.length == 1) {
             CreateRequest request = new CreateRequest(params[0]);
             server.createGame(request, authToken);
-            return String.format("New game created: " + request.gameName());
+            return String.format("New game created: " + request.gameName() + "\n");
         }
         throw new Exception("Expected: <NAME>");
     }
@@ -144,6 +145,9 @@ public class Client {
         if (params.length == 2) {
             try {
                 int requestedID = Integer.parseInt(params[0]);
+                if (requestedID > games.size() || requestedID < 1) {
+                    throw new Exception("Error: Invalid game ID");
+                }
                 GameData requestedGame = games.get(requestedID);
                 JoinRequest request = new JoinRequest(params[1].toUpperCase(), requestedGame.gameID());
                 server.joinGame(request, authToken);
@@ -160,6 +164,9 @@ public class Client {
         if (params.length == 1) {
             try {
                 int requestedID = Integer.parseInt(params[0]);
+                if (requestedID > games.size() || requestedID < 1) {
+                    throw new Exception("Error: Invalid game ID");
+                }
                 GameData requestedGame = games.get(requestedID);
                 return printBoard("WHITE", requestedGame);
             }
@@ -172,7 +179,7 @@ public class Client {
 
     private String printBoard(String color, GameData requestedGame) {
         StringBuilder board = new StringBuilder();
-        String borderColors = SET_BG_COLOR_BLUE + SET_TEXT_COLOR_WHITE;
+        String borderColors = SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE;
         String columns = "    a  b  c  d  e  f  g  h    ";
         String letterLabel = color.equals("WHITE") ? borderColors + columns + RESET_BG_COLOR + "\n" : borderColors + new StringBuilder(columns).reverse() + RESET_BG_COLOR + "\n";
         board.append(letterLabel);
@@ -214,18 +221,18 @@ public class Client {
     private String setSquareBackground(int row, int col, String color) {
         if (color.equals("WHITE")) {
             if (row % 2 != 0) {
-                return col % 2 == 0 ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
+                return col % 2 == 0 ? SET_BG_COLOR_AZURE : SET_BG_COLOR_STRATOS;
             }
             else {
-                return col % 2 != 0 ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
+                return col % 2 != 0 ? SET_BG_COLOR_AZURE : SET_BG_COLOR_STRATOS;
             }
         }
         else {
             if (row % 2 == 0) {
-                return col % 2 == 0 ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
+                return col % 2 == 0 ? SET_BG_COLOR_AZURE : SET_BG_COLOR_STRATOS;
             }
             else {
-                return col % 2 != 0 ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
+                return col % 2 != 0 ? SET_BG_COLOR_AZURE : SET_BG_COLOR_STRATOS;
             }
         }
     }
@@ -235,7 +242,7 @@ public class Client {
             return "   ";
         }
         else {
-            String pieceColor = currPiece.getTeamColor() == ChessGame.TeamColor.WHITE ? SET_TEXT_COLOR_BLUE : SET_TEXT_COLOR_RED;
+            String pieceColor = currPiece.getTeamColor() == ChessGame.TeamColor.WHITE ? SET_TEXT_COLOR_GOLD : SET_TEXT_COLOR_ELECTRIC_GREEN;
             String pieceType;
             switch (currPiece.getPieceType()) {
                 case KNIGHT -> pieceType = " N ";
