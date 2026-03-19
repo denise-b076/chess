@@ -184,15 +184,18 @@ public class Client {
         StringBuilder board = new StringBuilder();
         String borderColors = SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE;
         String columns = "    a  b  c  d  e  f  g  h    ";
-        String letterLabel = color.equals("WHITE") ? borderColors + columns + RESET_BG_COLOR + "\n" : borderColors + new StringBuilder(columns).reverse() + RESET_BG_COLOR + "\n";
-        board.append(letterLabel);
+        String letterLabel;
         if (color.equals("WHITE")) {
+            letterLabel = borderColors + columns + RESET_BG_COLOR + "\n";
+            board.append(letterLabel);
             for (int i = 8; i > 0; i--) {
                 StringBuilder currRow = rowBuilder(requestedGame,color,borderColors,i);
                 board.append(currRow);
             }
         }
         else {
+            letterLabel = borderColors + new StringBuilder(columns).reverse() + RESET_BG_COLOR + "\n";
+            board.append(letterLabel);
             for (int i = 1; i <= 8; i++) {
                 StringBuilder currRow = rowBuilder(requestedGame,color,borderColors,i);
                 board.append(currRow);
