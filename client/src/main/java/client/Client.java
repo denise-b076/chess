@@ -173,7 +173,7 @@ public class Client {
     private String printBoard(String color, GameData requestedGame) {
         StringBuilder board = new StringBuilder();
         String outsideColors = SET_BG_COLOR_BLUE + SET_TEXT_COLOR_WHITE;
-        String letterLabel = color.equals("WHITE") ? outsideColors + "    a  b  c  d  e  f  g  h    " + SET_BG_COLOR_BLACK + "\n" : outsideColors + "    h  g  f  e  d  c  b  a    " + SET_BG_COLOR_BLACK + "\n";
+        String letterLabel = color.equals("WHITE") ? outsideColors + "    a  b  c  d  e  f  g  h    " + RESET_BG_COLOR + "\n" : outsideColors + "    h  g  f  e  d  c  b  a    " + RESET_BG_COLOR + "\n";
         board.append(letterLabel);
         if (color.equals("WHITE")) {
             for (int i = 8; i > 0; i--) {
@@ -181,7 +181,13 @@ public class Client {
                 StringBuilder currRow = new StringBuilder(numberLabel);
                 for (int j = 1; j <= 8; j++) {
                     ChessPiece currPiece = requestedGame.game().getBoard().getPiece(new ChessPosition(i, j));
-                    String pieceBackground = j % 2 !=0 ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
+                    String pieceBackground;
+                    if (i % 2 != 0) {
+                        pieceBackground = j % 2 == 0 ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
+                    }
+                    else {
+                        pieceBackground = j % 2 != 0 ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
+                    }
                     String pieceColor;
                     String pieceType;
                     if (currPiece == null) {
@@ -203,7 +209,7 @@ public class Client {
                     currRow.append(square);
                 }
                 currRow.append(numberLabel);
-                currRow.append(SET_BG_COLOR_BLACK);
+                currRow.append(RESET_BG_COLOR);
                 currRow.append("\n");
                 board.append(currRow);
             }
@@ -214,7 +220,13 @@ public class Client {
                 StringBuilder currRow = new StringBuilder(numberLabel);
                 for (int j = 1; j <= 8; j++) {
                     ChessPiece currPiece = requestedGame.game().getBoard().getPiece(new ChessPosition(i, j));
-                    String pieceBackground = j % 2 != 0 ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
+                    String pieceBackground;
+                    if (i % 2 == 0) {
+                        pieceBackground = j % 2 == 0 ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
+                    }
+                    else {
+                        pieceBackground = j % 2 != 0 ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
+                    }
                     String pieceColor;
                     String pieceType;
                     if (currPiece == null) {
@@ -236,7 +248,7 @@ public class Client {
                     currRow.append(square);
                 }
                 currRow.append(numberLabel);
-                currRow.append(SET_BG_COLOR_BLACK);
+                currRow.append(RESET_BG_COLOR);
                 currRow.append("\n");
                 board.append(currRow);
             }
