@@ -1,14 +1,14 @@
 package client;
 
 import org.junit.jupiter.api.*;
-import request.CreateRequest;
-import request.JoinRequest;
-import request.LoginRequest;
-import request.RegisterRequest;
-import result.CreateResult;
-import result.RegisterResult;
+import model.request.CreateRequest;
+import model.request.JoinRequest;
+import model.request.LoginRequest;
+import model.request.RegisterRequest;
+import model.result.CreateResult;
+import model.result.RegisterResult;
 import server.Server;
-import server.ServerFacade;
+import serverfacade.ServerFacade;
 
 import static org.junit.jupiter.api.Assertions.*;
 

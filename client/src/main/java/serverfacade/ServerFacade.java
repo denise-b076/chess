@@ -1,14 +1,14 @@
-package server;
+package serverfacade;
 
 import com.google.gson.Gson;
-import request.CreateRequest;
-import request.JoinRequest;
-import request.LoginRequest;
-import request.RegisterRequest;
-import result.CreateResult;
-import result.ListResult;
-import result.LoginResult;
-import result.RegisterResult;
+import model.request.CreateRequest;
+import model.request.JoinRequest;
+import model.request.LoginRequest;
+import model.request.RegisterRequest;
+import model.result.CreateResult;
+import model.result.ListResult;
+import model.result.LoginResult;
+import model.result.RegisterResult;
 
 import java.net.URI;
 import java.net.http.HttpClient;

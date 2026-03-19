@@ -5,9 +5,10 @@ import io.javalin.http.BadRequestResponse;
 import io.javalin.http.UnauthorizedResponse;
 import model.AuthData;
 import model.GameData;
-import request.CreateRequest;
-import request.JoinRequest;
-import result.*;
+import model.request.CreateRequest;
+import model.request.JoinRequest;
+import model.result.CreateResult;
+import model.result.ListResult;
 
 import java.util.ArrayList;
 

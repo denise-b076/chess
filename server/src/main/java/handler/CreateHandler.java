@@ -7,8 +7,8 @@ import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.UnauthorizedResponse;
 import org.jetbrains.annotations.NotNull;
-import request.CreateRequest;
-import result.CreateResult;
+import model.request.CreateRequest;
+import model.result.CreateResult;
 import service.GameService;
 
 import java.util.Map;

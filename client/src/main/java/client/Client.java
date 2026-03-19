@@ -4,14 +4,14 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import model.GameData;
-import request.CreateRequest;
-import request.JoinRequest;
-import request.LoginRequest;
-import request.RegisterRequest;
-import result.ListResult;
-import result.LoginResult;
-import result.RegisterResult;
-import server.ServerFacade;
+import model.request.CreateRequest;
+import model.request.JoinRequest;
+import model.request.LoginRequest;
+import model.request.RegisterRequest;
+import model.result.ListResult;
+import model.result.LoginResult;
+import model.result.RegisterResult;
+import serverfacade.ServerFacade;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,7 +114,7 @@ public class Client {
         server.logoutUser(authToken);
         visitorName = null;
         authToken = null;
-        return "you've signed out\n";
+        return "You've signed out\n";
     }
 
     private String create(String... params) throws Exception {
@@ -137,6 +137,9 @@ public class Client {
             String currBlack = currGame.blackUsername() == null ? "<NONE>" : currGame.blackUsername();
             listString.append(String.format(i + " - name: " + currGame.gameName() + ", white: " + currWhite + ", black: " + currBlack + "\n"));
             games.put(i, listOfGames.get(i - 1));
+        }
+        if (listString.isEmpty()) {
+            return "No games created yet\n";
         }
         return listString.toString();
     }

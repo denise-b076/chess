@@ -6,10 +6,11 @@ import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.UnauthorizedResponse;
 import model.AuthData;
 import model.UserData;
+import model.result.LoginResult;
+import model.result.RegisterResult;
 import org.mindrot.jbcrypt.BCrypt;
-import request.LoginRequest;
-import request.RegisterRequest;
-import result.*;
+import model.request.LoginRequest;
+import model.request.RegisterRequest;
 
 import java.util.UUID;
 

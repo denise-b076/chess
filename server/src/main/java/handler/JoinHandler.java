@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import io.javalin.http.*;
 import org.jetbrains.annotations.NotNull;
-import request.JoinRequest;
+import model.request.JoinRequest;
 import service.GameService;
 
 import java.util.Map;

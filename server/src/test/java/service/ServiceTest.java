@@ -13,14 +13,14 @@ import io.javalin.http.UnauthorizedResponse;
 import model.GameData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import request.CreateRequest;
-import request.JoinRequest;
-import request.LoginRequest;
-import request.RegisterRequest;
-import result.CreateResult;
-import result.ListResult;
-import result.LoginResult;
-import result.RegisterResult;
+import model.request.CreateRequest;
+import model.request.JoinRequest;
+import model.request.LoginRequest;
+import model.request.RegisterRequest;
+import model.result.CreateResult;
+import model.result.ListResult;
+import model.result.LoginResult;
+import model.result.RegisterResult;
 
 import java.util.ArrayList;
 
