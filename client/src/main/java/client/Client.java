@@ -1,5 +1,8 @@
 package client;
 
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import model.GameData;
 import request.CreateRequest;
 import request.JoinRequest;
@@ -144,7 +147,7 @@ public class Client {
                 GameData requestedGame = games.get(requestedID);
                 JoinRequest request = new JoinRequest(params[1].toUpperCase(), requestedGame.gameID());
                 server.joinGame(request, authToken);
-                return ("game board would be here!");
+                return printBoard(params[1].toUpperCase(), requestedGame);
             }
             catch (NumberFormatException e) {
                 throw new Exception("Expected: <ID> [WHITE|BLACK]");
@@ -158,13 +161,88 @@ public class Client {
             try {
                 int requestedID = Integer.parseInt(params[0]);
                 GameData requestedGame = games.get(requestedID);
-                return ("game board would be here!");
+                return printBoard("WHITE", requestedGame);
             }
             catch (NumberFormatException e) {
                 throw new Exception("Expected: <ID>");
             }
         }
         throw new Exception("Expected: <ID>");
+    }
+
+    private String printBoard(String color, GameData requestedGame) {
+        StringBuilder board = new StringBuilder();
+        String outsideColors = SET_BG_COLOR_BLUE + SET_TEXT_COLOR_WHITE;
+        String letterLabel = color.equals("WHITE") ? outsideColors + "    a  b  c  d  e  f  g  h    " + SET_BG_COLOR_BLACK + "\n" : outsideColors + "    h  g  f  e  d  c  b  a    " + SET_BG_COLOR_BLACK + "\n";
+        board.append(letterLabel);
+        if (color.equals("WHITE")) {
+            for (int i = 8; i > 0; i--) {
+                String numberLabel = outsideColors + " " + i + " ";
+                StringBuilder currRow = new StringBuilder(numberLabel);
+                for (int j = 1; j <= 8; j++) {
+                    ChessPiece currPiece = requestedGame.game().getBoard().getPiece(new ChessPosition(i, j));
+                    String pieceBackground = j % 2 !=0 ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
+                    String pieceColor;
+                    String pieceType;
+                    if (currPiece == null) {
+                        pieceType = "   ";
+                        pieceColor = "";
+                    }
+                    else {
+                        pieceColor = currPiece.getTeamColor() == ChessGame.TeamColor.WHITE ? SET_TEXT_COLOR_BLUE : SET_TEXT_COLOR_RED;
+                        switch (currPiece.getPieceType()) {
+                            case KNIGHT -> pieceType = " N ";
+                            case ROOK -> pieceType = " R ";
+                            case BISHOP -> pieceType = " B ";
+                            case QUEEN -> pieceType = " Q ";
+                            case KING -> pieceType = " K ";
+                            default -> pieceType = " P ";
+                        }
+                    }
+                    String square = pieceBackground + pieceColor + pieceType;
+                    currRow.append(square);
+                }
+                currRow.append(numberLabel);
+                currRow.append(SET_BG_COLOR_BLACK);
+                currRow.append("\n");
+                board.append(currRow);
+            }
+        }
+        else {
+            for (int i = 1; i <= 8; i++) {
+                String numberLabel = outsideColors + " " + i + " ";
+                StringBuilder currRow = new StringBuilder(numberLabel);
+                for (int j = 1; j <= 8; j++) {
+                    ChessPiece currPiece = requestedGame.game().getBoard().getPiece(new ChessPosition(i, j));
+                    String pieceBackground = j % 2 != 0 ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
+                    String pieceColor;
+                    String pieceType;
+                    if (currPiece == null) {
+                        pieceType = "   ";
+                        pieceColor = "";
+                    }
+                    else {
+                        pieceColor = currPiece.getTeamColor() == ChessGame.TeamColor.WHITE ? SET_TEXT_COLOR_BLUE : SET_TEXT_COLOR_RED;
+                        switch (currPiece.getPieceType()) {
+                            case KNIGHT -> pieceType = " N ";
+                            case ROOK -> pieceType = " R ";
+                            case BISHOP -> pieceType = " B ";
+                            case QUEEN -> pieceType = " Q ";
+                            case KING -> pieceType = " K ";
+                            default -> pieceType = " P ";
+                        }
+                    }
+                    String square = pieceBackground + pieceColor + pieceType;
+                    currRow.append(square);
+                }
+                currRow.append(numberLabel);
+                currRow.append(SET_BG_COLOR_BLACK);
+                currRow.append("\n");
+                board.append(currRow);
+            }
+        }
+        board.append(letterLabel);
+        return board.toString();
     }
 
     private String help() {
