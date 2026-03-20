@@ -210,13 +210,13 @@ public class Client {
         StringBuilder currRow = new StringBuilder(numberLabel);
         if (color.equals("WHITE")) {
             for (int j = 1; j <= 8; j++) {
-                String square = squareBuilder(requestedGame, color, row, j);
+                String square = squareBuilder(requestedGame, row, j);
                 currRow.append(square);
             }
         }
         else {
             for (int j = 8; j > 0; j--) {
-                String square = squareBuilder(requestedGame, color, row, j);
+                String square = squareBuilder(requestedGame, row, j);
                 currRow.append(square);
             }
         }
@@ -225,29 +225,19 @@ public class Client {
         return currRow;
     }
 
-    private String squareBuilder(GameData requestedGame, String color, int row, int col) {
+    private String squareBuilder(GameData requestedGame, int row, int col) {
         ChessPiece currPiece = requestedGame.game().getBoard().getPiece(new ChessPosition(row, col));
-        String pieceBackground = setSquareBackground(row, col, color);
+        String pieceBackground = setSquareBackground(row, col);
         String pieceStyling = setPieceStyling(currPiece);
         return pieceBackground + pieceStyling;
     }
 
-    private String setSquareBackground(int row, int col, String color) {
-        if (color.equals("WHITE")) {
-            if (row % 2 != 0) {
-                return col % 2 == 0 ? SET_BG_COLOR_AZURE : SET_BG_COLOR_STRATOS;
-            }
-            else {
-                return col % 2 != 0 ? SET_BG_COLOR_AZURE : SET_BG_COLOR_STRATOS;
-            }
+    private String setSquareBackground(int row, int col) {
+        if (row % 2 != 0) {
+            return col % 2 == 0 ? SET_BG_COLOR_AZURE : SET_BG_COLOR_STRATOS;
         }
         else {
-            if (row % 2 == 0) {
-                return col % 2 == 0 ? SET_BG_COLOR_AZURE : SET_BG_COLOR_STRATOS;
-            }
-            else {
-                return col % 2 != 0 ? SET_BG_COLOR_AZURE : SET_BG_COLOR_STRATOS;
-            }
+            return col % 2 != 0 ? SET_BG_COLOR_AZURE : SET_BG_COLOR_STRATOS;
         }
     }
 
