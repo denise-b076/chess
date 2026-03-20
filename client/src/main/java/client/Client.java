@@ -208,9 +208,17 @@ public class Client {
     private StringBuilder rowBuilder(GameData requestedGame, String color, String borderColors, int row) {
         String numberLabel = borderColors + " " + row + " ";
         StringBuilder currRow = new StringBuilder(numberLabel);
-        for (int j = 1; j <= 8; j++) {
-            String square = squareBuilder(requestedGame, color, row, j);
-            currRow.append(square);
+        if (color.equals("WHITE")) {
+            for (int j = 1; j <= 8; j++) {
+                String square = squareBuilder(requestedGame, color, row, j);
+                currRow.append(square);
+            }
+        }
+        else {
+            for (int j = 8; j > 0; j--) {
+                String square = squareBuilder(requestedGame, color, row, j);
+                currRow.append(square);
+            }
         }
         String rowCap = numberLabel + RESET_BG_COLOR + "\n";
         currRow.append(rowCap);
