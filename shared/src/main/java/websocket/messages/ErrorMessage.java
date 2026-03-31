@@ -2,7 +2,6 @@ package websocket.messages;
 
 public class ErrorMessage extends ServerMessage {
 
-    ServerMessageType serverMessageType;
     String message;
 
     public ErrorMessage(String message) {

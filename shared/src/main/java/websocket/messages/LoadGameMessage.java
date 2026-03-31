@@ -3,7 +3,7 @@ package websocket.messages;
 import model.GameData;
 
 public class LoadGameMessage extends ServerMessage {
-    ServerMessageType serverMessageType;
+
     GameData gameData;
     String color;
 
