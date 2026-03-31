@@ -3,6 +3,8 @@ package client;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import client.websocket.NotificationHandler;
+import client.websocket.WebSocketFacade;
 import model.GameData;
 import model.request.CreateRequest;
 import model.request.JoinRequest;
@@ -12,6 +14,10 @@ import model.result.ListResult;
 import model.result.LoginResult;
 import model.result.RegisterResult;
 import serverfacade.ServerFacade;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,16 +25,18 @@ import java.util.HashMap;
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
-public class Client {
+public class Client implements NotificationHandler {
 
     private String visitorName = null;
     private final ServerFacade server;
     private String authToken = null;
     private final String exitString = SET_TEXT_COLOR_YELLOW + "See you later!";
+    private final WebSocketFacade ws;
     private final HashMap<Integer, GameData> games = new HashMap<>();
 
-    public Client(int port) {
+    public Client(int port) throws Exception {
         server = new ServerFacade(port);
+        ws = new WebSocketFacade(port, this);
     }
 
     public void run() {
@@ -50,6 +58,32 @@ public class Client {
             }
         }
         System.out.println();
+    }
+
+    public void notify(ServerMessage serverMessage) {
+        if (serverMessage instanceof NotificationMessage) {
+            notification((NotificationMessage) serverMessage);
+        }
+        else if (serverMessage instanceof ErrorMessage) {
+            error((ErrorMessage) serverMessage);
+        }
+        else {
+            loadGame((LoadGameMessage) serverMessage);
+        }
+    }
+
+    private void notification(NotificationMessage notificationMessage) {
+        System.out.println(SET_TEXT_COLOR_RED + notificationMessage.getMessage());
+        printPrompt();
+    }
+
+    private void error(ErrorMessage errorMessage) {
+        System.out.println(SET_TEXT_COLOR_YELLOW + errorMessage.getMessage());
+        printPrompt();
+    }
+
+    private void loadGame(LoadGameMessage loadGameMessage) {
+        printBoard(loadGameMessage.getColor(), loadGameMessage.getGameData());
     }
 
     private void printPrompt() {
