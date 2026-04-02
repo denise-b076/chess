@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConnectionManager {
 
     public final ConcurrentHashMap<Session, SessionInfo> connections = new ConcurrentHashMap<>();
-    public boolean gameOver = false;
+//    public boolean gameOver = false;
 
     public SessionInfo getSessionInfo(Session session) {
         return connections.get(session);
@@ -25,13 +25,13 @@ public class ConnectionManager {
         connections.remove(session);
     }
 
-    public boolean getGameStatus() {
-        return gameOver;
-    }
+//    public boolean getGameStatus() {
+//        return gameOver;
+//    }
 
-    public void endGame() {
-        gameOver = true;
-    }
+//    public void endGame() {
+//        gameOver = true;
+//    }
 
     private LoadGameMessage colorConversion(SessionInfo sessionInfo, LoadGameMessage loadGameMessage) {
         if (sessionInfo.color().equals("BLACK")) {

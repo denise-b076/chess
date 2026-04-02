@@ -14,15 +14,26 @@ public class ChessGame {
 
     private TeamColor teamTurn;
     private ChessBoard currBoard;
+    private boolean gameOver = false;
+
     public ChessGame() {
         setTeamTurn(TeamColor.WHITE);
         this.currBoard = new ChessBoard();
         currBoard.resetBoard();
+
     }
 
     public ChessGame(ChessGame other) {
         setTeamTurn(other.teamTurn);
         setBoard(other.currBoard);
+    }
+
+    public boolean getGameStatus() {
+        return gameOver;
+    }
+
+    public void setGameOver() {
+        gameOver = true;
     }
 
     /**

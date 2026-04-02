@@ -1,6 +1,7 @@
 package client;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import client.websocket.NotificationHandler;
@@ -14,6 +15,8 @@ import model.result.ListResult;
 import model.result.LoginResult;
 import model.result.RegisterResult;
 import serverfacade.ServerFacade;
+import websocket.commands.MakeMoveCommand;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -30,6 +33,7 @@ public class Client implements NotificationHandler {
     private String visitorName = null;
     private final ServerFacade server;
     private String authToken = null;
+    private int gameID = -1;
     private final String exitString = SET_TEXT_COLOR_YELLOW + "See you later!";
     private final WebSocketFacade ws;
     private final HashMap<Integer, GameData> games = new HashMap<>();
@@ -292,6 +296,25 @@ public class Client implements NotificationHandler {
             }
             return pieceColor + pieceType;
         }
+    }
+
+    private String move(String... params) throws Exception {
+        if (params.length == 3 || params.length == 4) {
+            ChessMove move = parseMove(params[1], params[2], params[3]);
+            MakeMoveCommand makeMoveCommand = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, games.get(gameID).gameID(), move);
+        }
+        throw new Exception("Expected: <START> <END> <PIECE TYPE (if promoting pawn)>");
+    }
+
+    private String helpInGame() {
+        return """
+               move <START> <END> <PIECE TYPE (if promoting pawn)> - move piece on start tile to end tile, if legal
+               highlight <START> - highlight all legal moves for piece on given start tile
+               leave - leave the game
+               resign - after confirming, resign the game
+               redraw - redraw the chess board
+               help - with possible commands
+               """;
     }
 
     private String help() {

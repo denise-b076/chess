@@ -131,13 +131,16 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
     private void resign(int gameID, String playerName) throws Exception {
         try {
             GameData gameData = gameDAO.getGame(gameID);
+            ChessGame game = gameData.game();
             if (!gameData.blackUsername().equals(playerName) && !gameData.whiteUsername().equals(playerName)) {
                 throw new Exception("cannot resign");
             }
-            if (gameSessionManager.getGameStatus(gameID)) {
+            if (gameData.game().getGameStatus()) {
                 throw new Exception("game already over");
             }
-            gameSessionManager.endGame(gameID);
+            game.setGameOver();
+            GameData updatedGame = new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+            gameDAO.updateGame(updatedGame);
             var message = String.format("%s has resigned", playerName);
             var resignMessage = new NotificationMessage(message);
             gameSessionManager.broadcastToGameAll(gameID, resignMessage);
@@ -154,15 +157,13 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
             ChessGame game = gameData.game();
             ChessGame.TeamColor color;
             String opposition;
-            if (gameSessionManager.getGameConnections(gameID).gameOver) {
+            if (game.getGameStatus()) {
                 throw new Exception("game is concluded, no more moves accepted");
             }
             if (!gameSessionManager.getGameConnections(gameID).getSessionInfo(session).color().equals(game.getTeamTurn().toString())) {
                 throw new Exception("out of turn play attempted");
             }
             game.makeMove(makeMoveCommand.getMove());
-            GameData updatedGame = new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
-            gameDAO.updateGame(updatedGame);
             if (gameData.blackUsername().equals(playerName)) {
                 color = ChessGame.TeamColor.WHITE;
                 opposition = gameData.whiteUsername();
@@ -181,18 +182,20 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
             String move = makeMoveCommand.getMove().toString();
             if (isInStalemate) {
                 additional = String.format("%s is in stalemate. Game over!", opposition);
-                gameSessionManager.endGame(gameID);
+                game.setGameOver();
             }
             else if (isInCheckmate) {
                 additional = String.format("%s is in checkmate. Game over!", opposition);
-                gameSessionManager.endGame(gameID);
+                game.setGameOver();
             }
             else if (isInCheck) {
                 additional = String.format("%s is in check!", opposition);
             }
+            GameData updatedGame = new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+            gameDAO.updateGame(updatedGame);
             var message = String.format("%s made the move %s", playerName, move);
             var moveMessage = new NotificationMessage(message);
-            var loadMessage = new LoadGameMessage(gameData, "WHITE");
+            var loadMessage = new LoadGameMessage(updatedGame, "WHITE");
             gameSessionManager.broadcastToGameAll(gameID, loadMessage);
             gameSessionManager.broadcastToGameExclusive(gameID,session,moveMessage);
             if (!additional.isEmpty()) {
