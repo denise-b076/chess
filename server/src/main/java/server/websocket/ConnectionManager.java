@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConnectionManager {
 
     public final ConcurrentHashMap<Session, Session> connections = new ConcurrentHashMap<>();
+    public boolean gameOver = false;
 
     public void add(Session session) {
         connections.put(session, session);
@@ -17,6 +18,14 @@ public class ConnectionManager {
 
     public void remove(Session session) {
         connections.remove(session);
+    }
+
+    public boolean getGameStatus() {
+        return gameOver;
+    }
+
+    public void endGame() {
+        gameOver = false;
     }
 
     public void broadcastToAll(ServerMessage serverMessage) throws IOException {
