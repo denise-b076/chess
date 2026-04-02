@@ -3,15 +3,18 @@ package server.websocket;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
+import io.javalin.http.UnauthorizedResponse;
 import io.javalin.websocket.*;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
 import websocket.messages.NotificationMessage;
 
 public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMessageHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
+    private final GameSessionManager gameSessionManager = new GameSessionManager();
 
     private final AuthDAO authDAO;
     private final GameDAO gameDAO;
@@ -28,17 +31,25 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
     }
 
     @Override
-    public void handleMessage(WsMessageContext ctx) {
+    public void handleMessage(WsMessageContext ctx) throws Exception {
+        int gameID = -1;
+        Session session = ctx.session;
         try {
             UserGameCommand userGameCommand = new Gson().fromJson(ctx.message(), UserGameCommand.class);
+            gameID = userGameCommand.getGameID();
             switch (userGameCommand.getCommandType()) {
 //                case CONNECT -> return;
 //                case MAKE_MOVE -> return;
 //                case RESIGN -> return;
-                case LEAVE -> leave(userGameCommand, ctx.session);
+                case LEAVE -> leave(userGameCommand, session);
             }
-        } catch (Exception ex) {
+        }
+        catch (UnauthorizedResponse ex){
+            gameSessionManager.broadcastToGameOne(gameID, session, new ErrorMessage("Error: Unauthorized"));
+        }
+        catch (Exception ex) {
             ex.printStackTrace();
+            gameSessionManager.broadcastToGameOne(gameID, session, new ErrorMessage("Error: " + ex.getMessage()));
         }
     }
 
@@ -64,11 +75,13 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
             }
             var message = String.format("%s has left the game", playerName);
             var leaveNotification = new NotificationMessage(message);
-            connections.broadcast(session, leaveNotification);
+            gameSessionManager.broadcastToGameExclusive(gameData.gameID(), session, leaveNotification);
+            gameSessionManager.removeSession(gameData.gameID(), session);
             connections.remove(session);
         }
         catch (Exception ex) {
-            throw new Exception(ex.getMessage());
+            var message = "Error: " + ex.getMessage();
+            throw new Exception(message);
         }
     }
 }

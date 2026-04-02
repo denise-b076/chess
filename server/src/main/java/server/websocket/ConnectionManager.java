@@ -19,11 +19,31 @@ public class ConnectionManager {
         connections.remove(session);
     }
 
-    public void broadcast(Session excludeSession, ServerMessage serverMessage) throws IOException {
+    public void broadcastToAll(ServerMessage serverMessage) throws IOException {
+        String msg = new Gson().toJson(serverMessage);
+        for (Session c : connections.values()) {
+            if (c.isOpen()) {
+                c.getRemote().sendString(msg);
+            }
+        }
+    }
+
+    public void broadcastToAllExcept(Session excludeSession, ServerMessage serverMessage) throws IOException {
         String msg = new Gson().toJson(serverMessage);
         for (Session c : connections.values()) {
             if (c.isOpen()) {
                 if (!c.equals(excludeSession)) {
+                    c.getRemote().sendString(msg);
+                }
+            }
+        }
+    }
+
+    public void broadcastToOne(Session session, ServerMessage serverMessage) throws IOException {
+        String msg = new Gson().toJson(serverMessage);
+        for (Session c : connections.values()) {
+            if (c.isOpen()) {
+                if (c.equals(session)) {
                     c.getRemote().sendString(msg);
                 }
             }
