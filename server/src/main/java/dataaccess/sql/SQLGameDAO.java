@@ -94,6 +94,20 @@ public class SQLGameDAO implements GameDAO {
         DatabaseManager.executeUpdate(statement, gameData.game(), gameData.gameID());
     }
 
+    public void clearUser(GameData gameData, String color) throws DataAccessException, BadRequestResponse {
+        if (getGame(gameData.gameID()) == null) {
+            throw new BadRequestResponse("Error: bad request");
+        }
+        String statement;
+        if (color.equals("WHITE")) {
+            statement = "UPDATE games SET white_username = ? WHERE game_id = ?";
+        }
+        else {
+            statement = "UPDATE games SET black_username = ? WHERE game_id = ?";
+        }
+        DatabaseManager.executeUpdate(statement, null, gameData.gameID());
+    }
+
 
     private void whiteUpdate(GameData gameData) throws DataAccessException {
         if (getGame(gameData.gameID()).whiteUsername() != null) {

@@ -30,7 +30,7 @@ public class ConnectionManager {
     }
 
     public void endGame() {
-        gameOver = false;
+        gameOver = true;
     }
 
     private LoadGameMessage colorConversion(SessionInfo sessionInfo, LoadGameMessage loadGameMessage) {

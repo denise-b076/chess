@@ -55,7 +55,7 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
             switch (userGameCommand.getCommandType()) {
                 case CONNECT -> connect(username, session, gameID);
                 case MAKE_MOVE -> makeMove(new Gson().fromJson(ctx.message(), MakeMoveCommand.class), gameID, username, session);
-                case RESIGN -> resign(gameID, username, session);
+                case RESIGN -> resign(gameID, username);
                 case LEAVE -> leave(gameID, username, session);
             }
         }
@@ -111,11 +111,11 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
     private void leave(int gameID, String playerName, Session session) throws Exception {
         try {
             GameData gameData = gameDAO.getGame(gameID);
-            if (gameData.blackUsername().equals(playerName)) {
-                gameDAO.joinGame("BLACK", null, gameData);
+            if (gameData.blackUsername() != null && gameData.blackUsername().equals(playerName)) {
+                gameDAO.clearUser(gameData,"BLACK");
             }
-            else if (gameData.whiteUsername().equals(playerName)) {
-                gameDAO.joinGame("WHITE", null, gameData);
+            else if (gameData.whiteUsername() != null && gameData.whiteUsername().equals(playerName)) {
+                gameDAO.clearUser(gameData,"WHITE");
             }
             var message = String.format("%s has left the game", playerName);
             var leaveNotification = new NotificationMessage(message);
@@ -128,12 +128,19 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
         }
     }
 
-    private void resign(int gameID, String playerName, Session session) throws Exception {
+    private void resign(int gameID, String playerName) throws Exception {
         try {
+            GameData gameData = gameDAO.getGame(gameID);
+            if (!gameData.blackUsername().equals(playerName) && !gameData.whiteUsername().equals(playerName)) {
+                throw new Exception("cannot resign");
+            }
+            if (gameSessionManager.getGameStatus(gameID)) {
+                throw new Exception("game already over");
+            }
             gameSessionManager.endGame(gameID);
             var message = String.format("%s has resigned", playerName);
             var resignMessage = new NotificationMessage(message);
-            gameSessionManager.broadcastToGameExclusive(gameID, session, resignMessage);
+            gameSessionManager.broadcastToGameAll(gameID, resignMessage);
         }
         catch (Exception ex) {
             var message = "Error: " + ex.getMessage();
@@ -147,6 +154,9 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
             ChessGame game = gameData.game();
             ChessGame.TeamColor color;
             String opposition;
+            if (gameSessionManager.getGameConnections(gameID).gameOver) {
+                throw new Exception("game is concluded, no more moves accepted");
+            }
             if (!gameSessionManager.getGameConnections(gameID).getSessionInfo(session).color().equals(game.getTeamTurn().toString())) {
                 throw new Exception("out of turn play attempted");
             }
@@ -165,36 +175,27 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
                 throw new UnauthorizedResponse();
             }
             boolean isInCheckmate = game.isInCheckmate(color);
-            System.out.println(isInCheckmate);
             boolean isInCheck = game.isInCheck(color);
-            System.out.println(isInCheck);
             boolean isInStalemate = game.isInStalemate(color);
-            System.out.println(isInStalemate);
             String additional = "";
             String move = makeMoveCommand.getMove().toString();
-            System.out.println(additional + "1" + move);
             if (isInStalemate) {
                 additional = String.format("%s is in stalemate. Game over!", opposition);
                 gameSessionManager.endGame(gameID);
-                System.out.println("STALE");
             }
             else if (isInCheckmate) {
                 additional = String.format("%s is in checkmate. Game over!", opposition);
                 gameSessionManager.endGame(gameID);
-                System.out.println("MATE");
             }
             else if (isInCheck) {
                 additional = String.format("%s is in check!", opposition);
-                System.out.println("CHECK");
             }
-            System.out.println(additional + "2" + move);
             var message = String.format("%s made the move %s", playerName, move);
             var moveMessage = new NotificationMessage(message);
             var loadMessage = new LoadGameMessage(gameData, "WHITE");
             gameSessionManager.broadcastToGameAll(gameID, loadMessage);
             gameSessionManager.broadcastToGameExclusive(gameID,session,moveMessage);
             if (!additional.isEmpty()) {
-                System.out.println("I made it! What now?");
                 var gameStateMessage = new NotificationMessage(additional);
                 gameSessionManager.broadcastToGameAll(gameID, gameStateMessage);
             }
