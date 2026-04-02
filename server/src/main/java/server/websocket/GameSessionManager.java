@@ -12,11 +12,15 @@ public class GameSessionManager {
     public GameSessionManager() {
     }
 
-    public void addSession(int gameID, Session session) {
+    public ConnectionManager getGameConnections(int gameID) {
+        return gameSessions.get(gameID);
+    }
+
+    public void addSession(int gameID, Session session, String color) {
         if (!gameSessions.containsKey(gameID)) {
             gameSessions.put(gameID, new ConnectionManager());
         }
-        gameSessions.get(gameID).add(session);
+        gameSessions.get(gameID).add(session, color);
     }
 
     public void removeSession(int gameID, Session session) {

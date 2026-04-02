@@ -58,6 +58,9 @@ public class MemoryGameDAO implements GameDAO {
         games.put(updated.gameID(), updated);
     }
 
+    public void updateGame(GameData gameData) {
+    }
+
     private GameData whiteUpdate(String username, GameData gameData) {
         if (gameData.whiteUsername() != null) {
             throw new ForbiddenResponse("Error: already taken");

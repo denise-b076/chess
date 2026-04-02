@@ -4,13 +4,16 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
+import io.javalin.http.BadRequestResponse;
 import io.javalin.http.UnauthorizedResponse;
 import io.javalin.websocket.*;
+import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
 public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMessageHandler {
@@ -35,19 +38,38 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
     public void handleMessage(WsMessageContext ctx) throws Exception {
         int gameID = -1;
         Session session = ctx.session;
+        AuthData authData = null;
         try {
             UserGameCommand userGameCommand = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             gameID = userGameCommand.getGameID();
-            String username = authDAO.getAuth(userGameCommand.getAuthToken()).username();
+            GameData gameData = gameDAO.getGame(gameID);
+            if (gameData == null) {
+                throw new BadRequestResponse("invalid gameID provided");
+            }
+            String username;
+            authData = authDAO.getAuth(userGameCommand.getAuthToken());
+            if (authData == null) {
+                throw new UnauthorizedResponse();
+            }
+            username = authData.username();
             switch (userGameCommand.getCommandType()) {
                 case CONNECT -> connect(username, session, gameID);
-                case MAKE_MOVE -> makeMove((MakeMoveCommand) userGameCommand, gameID, username, session);
+                case MAKE_MOVE -> makeMove(new Gson().fromJson(ctx.message(), MakeMoveCommand.class), gameID, username, session);
                 case RESIGN -> resign(gameID, username, session);
                 case LEAVE -> leave(gameID, username, session);
             }
         }
         catch (UnauthorizedResponse ex){
-            gameSessionManager.broadcastToGameOne(gameID, session, new ErrorMessage("Error: Unauthorized"));
+            var error = new ErrorMessage("Error: Unauthorized");
+            if (authData == null) {
+                session.getRemote().sendString(new Gson().toJson(error));
+            }
+            else {
+                gameSessionManager.broadcastToGameOne(gameID, session, error);
+            }
+        }
+        catch (BadRequestResponse ex) {
+            session.getRemote().sendString(new Gson().toJson(new ErrorMessage(ex.getMessage())));
         }
         catch (Exception ex) {
             ex.printStackTrace();
@@ -62,13 +84,20 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
 
     private void connect(String playerName, Session session, int gameID) throws Exception {
         try {
-            gameSessionManager.addSession(gameID, session);
             GameData gameData = gameDAO.getGame(gameID);
             var message = String.format("%s has joined the game", playerName);
             if (gameData.whiteUsername().equals(playerName)) {
+                gameSessionManager.addSession(gameID, session, "WHITE");
+                gameSessionManager.broadcastToGameOne(gameID, session, new LoadGameMessage(gameData, "WHITE"));
                 message += " as white";
             } else if (gameData.blackUsername().equals(playerName)) {
+                gameSessionManager.addSession(gameID, session, "BLACK");
+                gameSessionManager.broadcastToGameOne(gameID, session, new LoadGameMessage(gameData, "BLACK"));
                 message += " as black";
+            }
+            else {
+                gameSessionManager.addSession(gameID, session, "WHITE");
+                gameSessionManager.broadcastToGameOne(gameID, session, new LoadGameMessage(gameData, "WHITE"));
             }
             var connectNotification = new NotificationMessage(message);
             gameSessionManager.broadcastToGameExclusive(gameID, session, connectNotification);
@@ -118,6 +147,12 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
             ChessGame game = gameData.game();
             ChessGame.TeamColor color;
             String opposition;
+            if (!gameSessionManager.getGameConnections(gameID).getSessionInfo(session).color().equals(game.getTeamTurn().toString())) {
+                throw new Exception("out of turn play attempted");
+            }
+            game.makeMove(makeMoveCommand.getMove());
+            GameData updatedGame = new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+            gameDAO.updateGame(updatedGame);
             if (gameData.blackUsername().equals(playerName)) {
                 color = ChessGame.TeamColor.WHITE;
                 opposition = gameData.whiteUsername();
@@ -130,25 +165,36 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
                 throw new UnauthorizedResponse();
             }
             boolean isInCheckmate = game.isInCheckmate(color);
+            System.out.println(isInCheckmate);
             boolean isInCheck = game.isInCheck(color);
+            System.out.println(isInCheck);
             boolean isInStalemate = game.isInStalemate(color);
+            System.out.println(isInStalemate);
             String additional = "";
             String move = makeMoveCommand.getMove().toString();
+            System.out.println(additional + "1" + move);
             if (isInStalemate) {
                 additional = String.format("%s is in stalemate. Game over!", opposition);
                 gameSessionManager.endGame(gameID);
+                System.out.println("STALE");
             }
             else if (isInCheckmate) {
                 additional = String.format("%s is in checkmate. Game over!", opposition);
                 gameSessionManager.endGame(gameID);
+                System.out.println("MATE");
             }
             else if (isInCheck) {
                 additional = String.format("%s is in check!", opposition);
+                System.out.println("CHECK");
             }
+            System.out.println(additional + "2" + move);
             var message = String.format("%s made the move %s", playerName, move);
             var moveMessage = new NotificationMessage(message);
+            var loadMessage = new LoadGameMessage(gameData, "WHITE");
+            gameSessionManager.broadcastToGameAll(gameID, loadMessage);
             gameSessionManager.broadcastToGameExclusive(gameID,session,moveMessage);
             if (!additional.isEmpty()) {
+                System.out.println("I made it! What now?");
                 var gameStateMessage = new NotificationMessage(additional);
                 gameSessionManager.broadcastToGameAll(gameID, gameStateMessage);
             }

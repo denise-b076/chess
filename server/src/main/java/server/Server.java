@@ -10,6 +10,7 @@ import dataaccess.sql.SQLGameDAO;
 import dataaccess.sql.SQLUserDAO;
 import handler.*;
 import io.javalin.*;
+import server.websocket.WebSocketHandler;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -22,6 +23,7 @@ public class Server {
     private final ClearService clearService;
     private final GameService gameService;
     private final UserService userService;
+    private final WebSocketHandler webSocketHandler;
 
     private final Javalin javalin;
 
@@ -40,6 +42,7 @@ public class Server {
             this.clearService = new ClearService(gameDAO, authDAO, userDAO);
             this.userService = new UserService(authDAO, userDAO);
             this.gameService = new GameService(gameDAO, authDAO);
+            this.webSocketHandler = new WebSocketHandler(gameDAO, authDAO);
 
             javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
@@ -59,7 +62,12 @@ public class Server {
                 .delete("/session", new LogoutHandler(userService))
                 .get("/game", new ListHandler(gameService))
                 .post("/game", new CreateHandler(gameService))
-                .put("/game", new JoinHandler(gameService));
+                .put("/game", new JoinHandler(gameService))
+                .ws("/ws", ws -> {
+                    ws.onConnect(webSocketHandler);
+                    ws.onMessage(webSocketHandler);
+                    ws.onClose(webSocketHandler);
+                });
     }
 
 

@@ -4,17 +4,17 @@ import model.GameData;
 
 public class LoadGameMessage extends ServerMessage {
 
-    GameData gameData;
+    GameData game;
     String color;
 
     public LoadGameMessage(GameData gameData, String color) {
         super(ServerMessageType.LOAD_GAME);
-        this.gameData = gameData;
+        this.game = gameData;
         this.color = color;
     }
 
-    public GameData getGameData() {
-        return gameData;
+    public GameData getGame() {
+        return game;
     }
 
     public String getColor() {

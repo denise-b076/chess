@@ -78,12 +78,12 @@ public class Client implements NotificationHandler {
     }
 
     private void error(ErrorMessage errorMessage) {
-        System.out.println(SET_TEXT_COLOR_YELLOW + errorMessage.getMessage());
+        System.out.println(SET_TEXT_COLOR_YELLOW + errorMessage.getErrorMessage());
         printPrompt();
     }
 
     private void loadGame(LoadGameMessage loadGameMessage) {
-        printBoard(loadGameMessage.getColor(), loadGameMessage.getGameData());
+        printBoard(loadGameMessage.getColor(), loadGameMessage.getGame());
     }
 
     private void printPrompt() {
