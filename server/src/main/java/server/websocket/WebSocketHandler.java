@@ -13,7 +13,6 @@ import websocket.messages.NotificationMessage;
 
 public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMessageHandler {
 
-    private final ConnectionManager connections = new ConnectionManager();
     private final GameSessionManager gameSessionManager = new GameSessionManager();
 
     private final AuthDAO authDAO;
@@ -37,11 +36,12 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
         try {
             UserGameCommand userGameCommand = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             gameID = userGameCommand.getGameID();
+            String username = authDAO.getAuth(userGameCommand.getAuthToken()).username();
             switch (userGameCommand.getCommandType()) {
-//                case CONNECT -> return;
+                case CONNECT -> connect(username, session, gameID);
 //                case MAKE_MOVE -> return;
 //                case RESIGN -> return;
-                case LEAVE -> leave(userGameCommand, session);
+                case LEAVE -> leave(gameID, username, session);
             }
         }
         catch (UnauthorizedResponse ex){
@@ -58,15 +58,28 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
         System.out.println("Websocket closed");
     }
 
-    private void connect(String playerName, Session session) {
-//        connections.add(session);
-//        var message = String.format("")
+    private void connect(String playerName, Session session, int gameID) throws Exception {
+        try {
+            gameSessionManager.addSession(gameID, session);
+            GameData gameData = gameDAO.getGame(gameID);
+            var message = String.format("%s has joined the game", playerName);
+            if (gameData.whiteUsername().equals(playerName)) {
+                message += " as white";
+            } else if (gameData.blackUsername().equals(playerName)) {
+                message += " as black";
+            }
+            var connectNotification = new NotificationMessage(message);
+            gameSessionManager.broadcastToGameExclusive(gameID, session, connectNotification);
+        }
+        catch (Exception ex) {
+            var message = "Error: " + ex.getMessage();
+            throw new Exception(message);
+        }
     }
 
-    private void leave(UserGameCommand userGameCommand, Session session) throws Exception {
+    private void leave(int gameID, String playerName, Session session) throws Exception {
         try {
-            String playerName = authDAO.getAuth(userGameCommand.getAuthToken()).username();
-            GameData gameData = gameDAO.getGame(userGameCommand.getGameID());
+            GameData gameData = gameDAO.getGame(gameID);
             if (gameData.blackUsername().equals(playerName)) {
                 gameDAO.joinGame("BLACK", null, gameData);
             }
@@ -77,7 +90,6 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
             var leaveNotification = new NotificationMessage(message);
             gameSessionManager.broadcastToGameExclusive(gameData.gameID(), session, leaveNotification);
             gameSessionManager.removeSession(gameData.gameID(), session);
-            connections.remove(session);
         }
         catch (Exception ex) {
             var message = "Error: " + ex.getMessage();
