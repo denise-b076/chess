@@ -299,11 +299,53 @@ public class Client implements NotificationHandler {
     }
 
     private String move(String... params) throws Exception {
-        if (params.length == 3 || params.length == 4) {
-            ChessMove move = parseMove(params[1], params[2], params[3]);
+        if (params.length == 2 || params.length == 3) {
+            ChessMove move = parseMove(params);
             MakeMoveCommand makeMoveCommand = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, games.get(gameID).gameID(), move);
         }
         throw new Exception("Expected: <START> <END> <PIECE TYPE (if promoting pawn)>");
+    }
+
+    private ChessMove parseMove(String... params) throws Exception {
+        ChessPosition startTile = parsePosition(params[0]);
+        ChessPosition endTile = parsePosition(params[1]);
+        ChessPiece.PieceType promotion = null;
+        if (params.length == 3) {
+            promotion = parsePromotion(params[2]);
+        }
+        return new ChessMove(startTile,endTile,promotion);
+    }
+
+    private ChessPosition parsePosition(String tile) throws Exception{
+        if (tile.length() == 2) {
+            char letter = tile.charAt(0);
+            int col = tile.charAt(1);
+            int row = 0;
+            switch (letter) {
+                case 'a' -> row = 1;
+                case 'b' -> row = 2;
+                case 'c' -> row = 3;
+                case 'd' -> row = 4;
+                case 'e' -> row = 5;
+                case 'f' -> row = 6;
+                case 'g' -> row = 7;
+                case 'h' -> row = 8;
+            }
+            return new ChessPosition(row, col);
+        }
+        throw new Exception("Expected move to be formatted (<row><number>)");
+    }
+
+    private ChessPiece.PieceType parsePromotion(String promotionTitle) throws Exception {
+        ChessPiece.PieceType promotionPiece;
+        switch(promotionTitle) {
+            case "knight" -> promotionPiece = ChessPiece.PieceType.KNIGHT;
+            case "rook" -> promotionPiece = ChessPiece.PieceType.ROOK;
+            case "bishop" -> promotionPiece = ChessPiece.PieceType.BISHOP;
+            case "queen" -> promotionPiece = ChessPiece.PieceType.QUEEN;
+            default -> throw new Exception("invalid promotion type received");
+        }
+        return promotionPiece;
     }
 
     private String helpInGame() {
