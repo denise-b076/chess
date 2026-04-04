@@ -1,9 +1,6 @@
 package client;
 
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import model.GameData;
@@ -20,10 +17,8 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
+
 import static ui.EscapeSequences.*;
 
 public class Client implements NotificationHandler {
@@ -32,6 +27,8 @@ public class Client implements NotificationHandler {
     private final ServerFacade server;
     private String authToken = null;
     private int gameID = -1;
+    private GameData currentGame = null;
+    private String color = null;
     private final String exitString = SET_TEXT_COLOR_YELLOW + "See you later!";
     private final WebSocketFacade ws;
     private final HashMap<Integer, GameData> games = new HashMap<>();
@@ -81,6 +78,8 @@ public class Client implements NotificationHandler {
     }
 
     private void loadGame(LoadGameMessage loadGameMessage) {
+        currentGame = loadGameMessage.getGame();
+        color = loadGameMessage.getColor();
         System.out.println(printBoard(loadGameMessage.getColor(), loadGameMessage.getGame()));
     }
 
@@ -117,7 +116,7 @@ public class Client implements NotificationHandler {
             else {
                 return switch(cmd) {
                     case "move" -> move(params);
-                    case "highlight" -> null;
+                    case "highlight" -> highlight(params);
                     case "leave" -> null;
                     case "resign" -> null;
                     case "redraw" -> null;
@@ -216,6 +215,8 @@ public class Client implements NotificationHandler {
                     throw new Exception("Error: Invalid game ID");
                 }
                 GameData requestedGame = games.get(requestedID);
+                gameID = requestedGame.gameID();
+                ws.connect(authToken,gameID);
 //                return printBoard("WHITE", requestedGame);
                 return "";
             }
@@ -227,6 +228,10 @@ public class Client implements NotificationHandler {
     }
 
     private String printBoard(String color, GameData requestedGame) {
+        return printBoard(color, requestedGame, new ArrayList<>(), null);
+    }
+
+    private String printBoard(String color, GameData requestedGame, Collection<ChessMove> validMoves, ChessPosition start) {
         StringBuilder board = new StringBuilder();
         String borderColors = SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE;
         String columns = "    a  b  c  d  e  f  g  h    ";
@@ -235,7 +240,7 @@ public class Client implements NotificationHandler {
             letterLabel = borderColors + columns + RESET_BG_COLOR + "\n";
             board.append(letterLabel);
             for (int i = 8; i > 0; i--) {
-                StringBuilder currRow = rowBuilder(requestedGame,color,borderColors,i);
+                StringBuilder currRow = rowBuilder(requestedGame,color,borderColors,validMoves,start,i);
                 board.append(currRow);
             }
         }
@@ -243,7 +248,7 @@ public class Client implements NotificationHandler {
             letterLabel = borderColors + new StringBuilder(columns).reverse() + RESET_BG_COLOR + "\n";
             board.append(letterLabel);
             for (int i = 1; i <= 8; i++) {
-                StringBuilder currRow = rowBuilder(requestedGame,color,borderColors,i);
+                StringBuilder currRow = rowBuilder(requestedGame,color,borderColors,validMoves,start,i);
                 board.append(currRow);
             }
         }
@@ -251,18 +256,18 @@ public class Client implements NotificationHandler {
         return board.toString();
     }
 
-    private StringBuilder rowBuilder(GameData requestedGame, String color, String borderColors, int row) {
+    private StringBuilder rowBuilder(GameData requestedGame, String color, String borderColors, Collection<ChessMove> validMoves, ChessPosition start, int row) {
         String numberLabel = borderColors + " " + row + " ";
         StringBuilder currRow = new StringBuilder(numberLabel);
         if (color.equals("WHITE")) {
             for (int j = 1; j <= 8; j++) {
-                String square = squareBuilder(requestedGame, row, j);
+                String square = squareBuilder(requestedGame, row, j, validMoves, start);
                 currRow.append(square);
             }
         }
         else {
             for (int j = 8; j > 0; j--) {
-                String square = squareBuilder(requestedGame, row, j);
+                String square = squareBuilder(requestedGame, row, j, validMoves, start);
                 currRow.append(square);
             }
         }
@@ -271,18 +276,32 @@ public class Client implements NotificationHandler {
         return currRow;
     }
 
-    private String squareBuilder(GameData requestedGame, int row, int col) {
+    private String squareBuilder(GameData requestedGame, int row, int col, Collection<ChessMove> validMoves, ChessPosition start) {
         ChessPiece currPiece = requestedGame.game().getBoard().getPiece(new ChessPosition(row, col));
-        String pieceBackground = setSquareBackground(row, col);
+        String pieceBackground = setSquareBackground(row, col, validMoves, start);
         String pieceStyling = setPieceStyling(currPiece);
         return pieceBackground + pieceStyling;
     }
 
-    private String setSquareBackground(int row, int col) {
+    private String setSquareBackground(int row, int col, Collection<ChessMove> validMoves, ChessPosition start) {
+        ChessPosition currPos = new ChessPosition(row, col);
+        if (currPos.equals(start)) {
+            return SET_BG_COLOR_DARK_VIOLET;
+        }
         if (row % 2 != 0) {
+            for (ChessMove move: validMoves) {
+                if (currPos.equals(move.getEndPosition())) {
+                    return col % 2 == 0 ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
+                }
+            }
             return col % 2 == 0 ? SET_BG_COLOR_AZURE : SET_BG_COLOR_STRATOS;
         }
         else {
+            for (ChessMove move: validMoves) {
+                if (currPos.equals(move.getEndPosition())) {
+                    return col % 2 != 0 ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
+                }
+            }
             return col % 2 != 0 ? SET_BG_COLOR_AZURE : SET_BG_COLOR_STRATOS;
         }
     }
@@ -304,6 +323,16 @@ public class Client implements NotificationHandler {
             }
             return pieceColor + pieceType;
         }
+    }
+
+    private String highlight(String... params) throws Exception {
+        if (params.length == 1) {
+            ChessPosition startTile = parsePosition(params[0]);
+            ChessPiece highlightedPiece = currentGame.game().getBoard().getPiece(startTile);
+            Collection<ChessMove> validMoves = highlightedPiece.pieceMoves(currentGame.game().getBoard(), startTile);
+            return printBoard(color, currentGame, validMoves, startTile);
+        }
+        throw new Exception("Expected: <START>");
     }
 
     private String move(String... params) throws Exception {
