@@ -117,9 +117,9 @@ public class Client implements NotificationHandler {
                 return switch(cmd) {
                     case "move" -> move(params);
                     case "highlight" -> highlight(params);
-                    case "leave" -> null;
+                    case "leave" -> leave();
                     case "resign" -> null;
-                    case "redraw" -> null;
+                    case "redraw" -> printBoard(color, currentGame);
                     default -> help();
                 };
             }
@@ -323,6 +323,14 @@ public class Client implements NotificationHandler {
             }
             return pieceColor + pieceType;
         }
+    }
+
+    private String leave() throws Exception {
+        ws.leave(authToken, gameID);
+        gameID = -1;
+        currentGame = null;
+        color = null;
+        return "Exited game";
     }
 
     private String highlight(String... params) throws Exception {
