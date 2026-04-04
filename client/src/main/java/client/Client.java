@@ -15,8 +15,6 @@ import model.result.ListResult;
 import model.result.LoginResult;
 import model.result.RegisterResult;
 import serverfacade.ServerFacade;
-import websocket.commands.MakeMoveCommand;
-import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -65,14 +63,10 @@ public class Client implements NotificationHandler {
     }
 
     public void notify(ServerMessage serverMessage) {
-        if (serverMessage instanceof NotificationMessage) {
-            notification((NotificationMessage) serverMessage);
-        }
-        else if (serverMessage instanceof ErrorMessage) {
-            error((ErrorMessage) serverMessage);
-        }
-        else {
-            loadGame((LoadGameMessage) serverMessage);
+        switch(serverMessage.getServerMessageType()) {
+            case NOTIFICATION -> notification((NotificationMessage) serverMessage);
+            case ERROR -> error((ErrorMessage) serverMessage);
+            case LOAD_GAME -> loadGame((LoadGameMessage) serverMessage);
         }
     }
 
@@ -87,7 +81,7 @@ public class Client implements NotificationHandler {
     }
 
     private void loadGame(LoadGameMessage loadGameMessage) {
-        printBoard(loadGameMessage.getColor(), loadGameMessage.getGame());
+        System.out.println(printBoard(loadGameMessage.getColor(), loadGameMessage.getGame()));
     }
 
     private void printPrompt() {
@@ -109,7 +103,7 @@ public class Client implements NotificationHandler {
                     default -> help();
                 };
             }
-            else {
+            else if (gameID < 0) {
                 return switch(cmd) {
                     case "logout" -> logout();
                     case "create" -> create(params);
@@ -117,6 +111,16 @@ public class Client implements NotificationHandler {
                     case "join" -> join(params);
                     case "observe" -> observe(params);
                     case "quit" -> exitString;
+                    default -> help();
+                };
+            }
+            else {
+                return switch(cmd) {
+                    case "move" -> move(params);
+                    case "highlight" -> null;
+                    case "leave" -> null;
+                    case "resign" -> null;
+                    case "redraw" -> null;
                     default -> help();
                 };
             }
@@ -192,7 +196,10 @@ public class Client implements NotificationHandler {
                 GameData requestedGame = games.get(requestedID);
                 JoinRequest request = new JoinRequest(params[1].toUpperCase(), requestedGame.gameID());
                 server.joinGame(request, authToken);
-                return printBoard(params[1].toUpperCase(), requestedGame);
+                gameID = requestedGame.gameID();
+                ws.connect(authToken,gameID);
+//                return printBoard(params[1].toUpperCase(), requestedGame);
+                return "";
             }
             catch (NumberFormatException e) {
                 throw new Exception("Expected: <ID> [WHITE|BLACK]");
@@ -209,7 +216,8 @@ public class Client implements NotificationHandler {
                     throw new Exception("Error: Invalid game ID");
                 }
                 GameData requestedGame = games.get(requestedID);
-                return printBoard("WHITE", requestedGame);
+//                return printBoard("WHITE", requestedGame);
+                return "";
             }
             catch (NumberFormatException e) {
                 throw new Exception("Expected: <ID>");
@@ -301,7 +309,8 @@ public class Client implements NotificationHandler {
     private String move(String... params) throws Exception {
         if (params.length == 2 || params.length == 3) {
             ChessMove move = parseMove(params);
-            MakeMoveCommand makeMoveCommand = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, games.get(gameID).gameID(), move);
+            ws.makeMove(authToken,gameID,move);
+            return "";
         }
         throw new Exception("Expected: <START> <END> <PIECE TYPE (if promoting pawn)>");
     }
@@ -319,17 +328,18 @@ public class Client implements NotificationHandler {
     private ChessPosition parsePosition(String tile) throws Exception{
         if (tile.length() == 2) {
             char letter = tile.charAt(0);
-            int col = tile.charAt(1);
-            int row = 0;
+            char number = tile.charAt(1);
+            int row = number - '0';
+            int col = 0;
             switch (letter) {
-                case 'a' -> row = 1;
-                case 'b' -> row = 2;
-                case 'c' -> row = 3;
-                case 'd' -> row = 4;
-                case 'e' -> row = 5;
-                case 'f' -> row = 6;
-                case 'g' -> row = 7;
-                case 'h' -> row = 8;
+                case 'a' -> col = 1;
+                case 'b' -> col = 2;
+                case 'c' -> col = 3;
+                case 'd' -> col = 4;
+                case 'e' -> col = 5;
+                case 'f' -> col = 6;
+                case 'g' -> col = 7;
+                case 'h' -> col = 8;
             }
             return new ChessPosition(row, col);
         }
@@ -348,17 +358,6 @@ public class Client implements NotificationHandler {
         return promotionPiece;
     }
 
-    private String helpInGame() {
-        return """
-               move <START> <END> <PIECE TYPE (if promoting pawn)> - move piece on start tile to end tile, if legal
-               highlight <START> - highlight all legal moves for piece on given start tile
-               leave - leave the game
-               resign - after confirming, resign the game
-               redraw - redraw the chess board
-               help - with possible commands
-               """;
-    }
-
     private String help() {
         if (authToken == null) {
             return """
@@ -368,15 +367,27 @@ public class Client implements NotificationHandler {
                    help - with possible commands
                    """;
         }
-        return """
-               create <NAME> - a game
-               list - games
-               join <ID> [WHITE|BLACK] - a game
-               observe <ID> - a game
-               logout - when you are done
-               quit - playing chess
+        else if (gameID < 0) {
+            return """
+                    create <NAME> - a game
+                    list - games
+                    join <ID> [WHITE|BLACK] - a game
+                    observe <ID> - a game
+                    logout - when you are done
+                    quit - playing chess
+                    help - with possible commands
+                    """;
+        }
+        else {
+            return """
+               move <START> <END> <PIECE TYPE (if promoting pawn)> - move piece on start tile to end tile, if legal
+               highlight <START> - highlight all legal moves for piece on given start tile
+               leave - leave the game
+               resign - after confirming, resign the game
+               redraw - redraw the chess board
                help - with possible commands
                """;
+        }
     }
 
 }

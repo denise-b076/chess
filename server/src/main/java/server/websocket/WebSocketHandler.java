@@ -164,11 +164,11 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
                 throw new Exception("out of turn play attempted");
             }
             game.makeMove(makeMoveCommand.getMove());
-            if (gameData.blackUsername().equals(playerName)) {
+            if (gameData.blackUsername() != null && gameData.blackUsername().equals(playerName)) {
                 color = ChessGame.TeamColor.WHITE;
                 opposition = gameData.whiteUsername();
             }
-            else if (gameData.whiteUsername().equals(playerName)) {
+            else if (gameData.whiteUsername() != null && gameData.whiteUsername().equals(playerName)) {
                 color = ChessGame.TeamColor.BLACK;
                 opposition = gameData.blackUsername();
             }
@@ -207,8 +207,8 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
             throw new UnauthorizedResponse();
         }
         catch (Exception ex) {
-            var message = "Error: " + ex.getMessage();
-            throw new Exception(message);
+//            var message = "Error: " + ex.getMessage();
+            throw new Exception(ex.getMessage());
         }
     }
 }
