@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConnectionManager {
 
     public final ConcurrentHashMap<Session, SessionInfo> connections = new ConcurrentHashMap<>();
-//    public boolean gameOver = false;
 
     public SessionInfo getSessionInfo(Session session) {
         return connections.get(session);
@@ -25,14 +24,6 @@ public class ConnectionManager {
         connections.remove(session);
     }
 
-//    public boolean getGameStatus() {
-//        return gameOver;
-//    }
-
-//    public void endGame() {
-//        gameOver = true;
-//    }
-
     private LoadGameMessage colorConversion(SessionInfo sessionInfo, LoadGameMessage loadGameMessage) {
         if (sessionInfo.color().equals("BLACK")) {
             return new LoadGameMessage(loadGameMessage.getGame(), "BLACK");
@@ -45,7 +36,7 @@ public class ConnectionManager {
         for (Session c : connections.keySet()) {
             if (c.isOpen()) {
                 if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-                    serverMessage = colorConversion(connections.get(c), (LoadGameMessage) serverMessage);
+                    msg = new Gson().toJson(colorConversion(connections.get(c), (LoadGameMessage) serverMessage));
                 }
                 c.getRemote().sendString(msg);
             }

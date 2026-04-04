@@ -27,14 +27,6 @@ public class GameSessionManager {
         gameSessions.get(gameID).remove(session);
     }
 
-//    public void endGame(int gameID) {
-//        gameSessions.get(gameID).endGame();
-//    }
-
-//    public boolean getGameStatus(int gameID) {
-//        return gameSessions.get(gameID).getGameStatus();
-//    }
-
     public void broadcastToGameExclusive(int gameID, Session session, ServerMessage serverMessage) throws IOException {
         gameSessions.get(gameID).broadcastToAllExcept(session, serverMessage);
     }

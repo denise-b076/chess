@@ -86,11 +86,11 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
         try {
             GameData gameData = gameDAO.getGame(gameID);
             var message = String.format("%s has joined the game", playerName);
-            if (gameData.whiteUsername().equals(playerName)) {
+            if (gameData.whiteUsername() != null && gameData.whiteUsername().equals(playerName)) {
                 gameSessionManager.addSession(gameID, session, "WHITE");
                 gameSessionManager.broadcastToGameOne(gameID, session, new LoadGameMessage(gameData, "WHITE"));
                 message += " as white";
-            } else if (gameData.blackUsername().equals(playerName)) {
+            } else if (gameData.blackUsername() != null && gameData.blackUsername().equals(playerName)) {
                 gameSessionManager.addSession(gameID, session, "BLACK");
                 gameSessionManager.broadcastToGameOne(gameID, session, new LoadGameMessage(gameData, "BLACK"));
                 message += " as black";

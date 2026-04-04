@@ -34,9 +34,26 @@ public class ChessPosition {
         return col;
     }
 
+    private String parsePosition() {
+        String colRepresentation = "";
+        switch(col) {
+            case 1 -> colRepresentation = "a";
+            case 2 -> colRepresentation = "b";
+            case 3 -> colRepresentation = "c";
+            case 4 -> colRepresentation = "d";
+            case 5 -> colRepresentation = "e";
+            case 6 -> colRepresentation = "f";
+            case 7 -> colRepresentation = "g";
+            case 8 -> colRepresentation = "h";
+        }
+        String rowRepresentation = Integer.toString(row);
+        return colRepresentation + rowRepresentation;
+    }
+
     @Override
     public String toString() {
-        return String.format("[%d,%d]", row, col);
+//        return String.format("[%d,%d]", row, col);
+        return parsePosition();
     }
 
     @Override
