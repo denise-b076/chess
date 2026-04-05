@@ -29,6 +29,7 @@ public class Client implements NotificationHandler {
     private int gameID = -1;
     private GameData currentGame = null;
     private String color = null;
+    private boolean mightResign = false;
     private final String exitString = SET_TEXT_COLOR_YELLOW + "See you later!";
     private final WebSocketFacade ws;
     private final HashMap<Integer, GameData> games = new HashMap<>();
@@ -68,12 +69,12 @@ public class Client implements NotificationHandler {
     }
 
     private void notification(NotificationMessage notificationMessage) {
-        System.out.println(SET_TEXT_COLOR_RED + notificationMessage.getMessage());
+        System.out.println(SET_TEXT_COLOR_YELLOW + notificationMessage.getMessage());
         printPrompt();
     }
 
     private void error(ErrorMessage errorMessage) {
-        System.out.println(SET_TEXT_COLOR_YELLOW + errorMessage.getErrorMessage());
+        System.out.println(SET_TEXT_COLOR_RED + errorMessage.getErrorMessage());
         printPrompt();
     }
 
@@ -113,12 +114,19 @@ public class Client implements NotificationHandler {
                     default -> help();
                 };
             }
+            else if (mightResign) {
+                return switch(cmd) {
+                    case "y" -> resign();
+                    case "n" -> cancelResign();
+                    default -> "Please type Y or N";
+                };
+            }
             else {
                 return switch(cmd) {
                     case "move" -> move(params);
                     case "highlight" -> highlight(params);
                     case "leave" -> leave();
-                    case "resign" -> null;
+                    case "resign" -> mightResign();
                     case "redraw" -> printBoard(color, currentGame);
                     default -> help();
                 };
@@ -331,6 +339,22 @@ public class Client implements NotificationHandler {
         currentGame = null;
         color = null;
         return "Exited game";
+    }
+
+    private String mightResign() {
+        mightResign = true;
+        return "Are you sure you want to resign? (Y for yes, N for no)";
+    }
+
+    private String cancelResign() {
+        mightResign = false;
+        return "";
+    }
+
+    private String resign() throws Exception {
+        ws.resign(authToken, gameID);
+        mightResign = false;
+        return "Resigned game";
     }
 
     private String highlight(String... params) throws Exception {
