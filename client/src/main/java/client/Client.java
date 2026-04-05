@@ -263,8 +263,8 @@ public class Client implements NotificationHandler {
         return board.toString();
     }
 
-    private StringBuilder rowBuilder(GameData reqGame, String color, String borderColor, Collection<ChessMove> valMoves, ChessPosition start, int row) {
-        String numberLabel = borderColor + " " + row + " ";
+    private StringBuilder rowBuilder(GameData reqGame, String color, String borColor, Collection<ChessMove> valMoves, ChessPosition start, int row) {
+        String numberLabel = borColor + " " + row + " ";
         StringBuilder currRow = new StringBuilder(numberLabel);
         if (color.equals("WHITE")) {
             for (int j = 1; j <= 8; j++) {
