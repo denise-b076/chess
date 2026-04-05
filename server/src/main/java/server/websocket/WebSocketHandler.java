@@ -72,7 +72,6 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
             session.getRemote().sendString(new Gson().toJson(new ErrorMessage(ex.getMessage())));
         }
         catch (Exception ex) {
-            ex.printStackTrace();
             gameSessionManager.broadcastToGameOne(gameID, session, new ErrorMessage("Error: " + ex.getMessage()));
         }
     }
@@ -207,7 +206,6 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
             throw new UnauthorizedResponse();
         }
         catch (Exception ex) {
-//            var message = "Error: " + ex.getMessage();
             throw new Exception(ex.getMessage());
         }
     }

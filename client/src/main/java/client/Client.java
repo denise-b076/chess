@@ -82,6 +82,7 @@ public class Client implements NotificationHandler {
         currentGame = loadGameMessage.getGame();
         color = loadGameMessage.getColor();
         System.out.println(printBoard(loadGameMessage.getColor(), loadGameMessage.getGame()));
+        printPrompt();
     }
 
     private void printPrompt() {
@@ -205,7 +206,6 @@ public class Client implements NotificationHandler {
                 server.joinGame(request, authToken);
                 gameID = requestedGame.gameID();
                 ws.connect(authToken,gameID);
-//                return printBoard(params[1].toUpperCase(), requestedGame);
                 return "";
             }
             catch (NumberFormatException e) {
@@ -225,7 +225,6 @@ public class Client implements NotificationHandler {
                 GameData requestedGame = games.get(requestedID);
                 gameID = requestedGame.gameID();
                 ws.connect(authToken,gameID);
-//                return printBoard("WHITE", requestedGame);
                 return "";
             }
             catch (NumberFormatException e) {
@@ -264,18 +263,18 @@ public class Client implements NotificationHandler {
         return board.toString();
     }
 
-    private StringBuilder rowBuilder(GameData requestedGame, String color, String borderColors, Collection<ChessMove> validMoves, ChessPosition start, int row) {
-        String numberLabel = borderColors + " " + row + " ";
+    private StringBuilder rowBuilder(GameData reqGame, String color, String borderColor, Collection<ChessMove> valMoves, ChessPosition start, int row) {
+        String numberLabel = borderColor + " " + row + " ";
         StringBuilder currRow = new StringBuilder(numberLabel);
         if (color.equals("WHITE")) {
             for (int j = 1; j <= 8; j++) {
-                String square = squareBuilder(requestedGame, row, j, validMoves, start);
+                String square = squareBuilder(reqGame, row, j, valMoves, start);
                 currRow.append(square);
             }
         }
         else {
             for (int j = 8; j > 0; j--) {
-                String square = squareBuilder(requestedGame, row, j, validMoves, start);
+                String square = squareBuilder(reqGame, row, j, valMoves, start);
                 currRow.append(square);
             }
         }
@@ -361,7 +360,13 @@ public class Client implements NotificationHandler {
         if (params.length == 1) {
             ChessPosition startTile = parsePosition(params[0]);
             ChessPiece highlightedPiece = currentGame.game().getBoard().getPiece(startTile);
-            Collection<ChessMove> validMoves = highlightedPiece.pieceMoves(currentGame.game().getBoard(), startTile);
+            Collection<ChessMove> validMoves;
+            if (highlightedPiece == null) {
+                validMoves = new ArrayList<>();
+            }
+            else {
+                validMoves = highlightedPiece.pieceMoves(currentGame.game().getBoard(), startTile);
+            }
             return printBoard(color, currentGame, validMoves, startTile);
         }
         throw new Exception("Expected: <START>");
