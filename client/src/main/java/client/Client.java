@@ -365,7 +365,7 @@ public class Client implements NotificationHandler {
                 validMoves = new ArrayList<>();
             }
             else {
-                validMoves = highlightedPiece.pieceMoves(currentGame.game().getBoard(), startTile);
+                validMoves = currentGame.game().validMoves(startTile);
             }
             return printBoard(color, currentGame, validMoves, startTile);
         }
@@ -396,7 +396,7 @@ public class Client implements NotificationHandler {
             char letter = tile.charAt(0);
             char number = tile.charAt(1);
             int row = number - '0';
-            int col = 0;
+            int col;
             switch (letter) {
                 case 'a' -> col = 1;
                 case 'b' -> col = 2;
@@ -406,8 +406,11 @@ public class Client implements NotificationHandler {
                 case 'f' -> col = 6;
                 case 'g' -> col = 7;
                 case 'h' -> col = 8;
+                default -> throw new Exception("Expected move to be formatted (<row><number>)");
             }
-            return new ChessPosition(row, col);
+            if (row <= 8 && row >= 1) {
+                return new ChessPosition(row, col);
+            }
         }
         throw new Exception("Expected move to be formatted (<row><number>)");
     }
