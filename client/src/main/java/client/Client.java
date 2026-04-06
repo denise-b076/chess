@@ -353,7 +353,7 @@ public class Client implements NotificationHandler {
     private String resign() throws Exception {
         ws.resign(authToken, gameID);
         mightResign = false;
-        return "Resigned game";
+        return "";
     }
 
     private String highlight(String... params) throws Exception {
