@@ -102,8 +102,7 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
             gameSessionManager.broadcastToGameExclusive(gameID, session, connectNotification);
         }
         catch (Exception ex) {
-            var message = "Error: " + ex.getMessage();
-            throw new Exception(message);
+            throw new Exception(ex.getMessage());
         }
     }
 
@@ -122,8 +121,7 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
             gameSessionManager.removeSession(gameData.gameID(), session);
         }
         catch (Exception ex) {
-            var message = "Error: " + ex.getMessage();
-            throw new Exception(message);
+            throw new Exception(ex.getMessage());
         }
     }
 
@@ -132,7 +130,7 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
             GameData gameData = gameDAO.getGame(gameID);
             ChessGame game = gameData.game();
             if (!gameData.blackUsername().equals(playerName) && !gameData.whiteUsername().equals(playerName)) {
-                throw new Exception("cannot resign");
+                throw new Exception("cannot resign - not a player");
             }
             if (gameData.game().getGameStatus()) {
                 throw new Exception("game already over");
@@ -145,8 +143,7 @@ public class WebSocketHandler implements WsCloseHandler, WsConnectHandler, WsMes
             gameSessionManager.broadcastToGameAll(gameID, resignMessage);
         }
         catch (Exception ex) {
-            var message = "Error: " + ex.getMessage();
-            throw new Exception(message);
+            throw new Exception(ex.getMessage());
         }
     }
 
